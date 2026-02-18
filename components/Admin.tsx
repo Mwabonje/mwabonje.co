@@ -348,32 +348,32 @@ const Admin: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-slate-100 flex flex-col md:flex-row">
-      <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-8">
-        <div className="flex items-center gap-3">
+      <aside className="w-full md:w-64 bg-white dark:bg-slate-900 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 p-4 md:p-6 flex flex-row md:flex-col gap-4 md:gap-8 overflow-x-auto md:overflow-x-visible sticky top-0 z-40">
+        <div className="flex items-center gap-3 shrink-0">
           <div className="w-8 h-8 bg-slate-900 dark:bg-white rounded-lg flex items-center justify-center">
-            <LayoutDashboard className="w-5 h-5 text-white dark:text-black" />
+            <LayoutDashboard className="w-5 h-5 text-white dark:text-black shrink-0" />
           </div>
-          <span className="font-montserrat text-xl tracking-tight font-bold">Admin</span>
+          <span className="font-montserrat text-lg md:text-xl tracking-tight font-bold hidden xs:block">Admin</span>
         </div>
 
-        <nav className="flex flex-col gap-1">
+        <nav className="flex flex-row md:flex-col gap-1 items-center md:items-stretch">
           <button
             onClick={() => setActiveTab('gallery')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'gallery' ? 'bg-slate-100 dark:bg-slate-800 font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+            className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all shrink-0 ${activeTab === 'gallery' ? 'bg-slate-100 dark:bg-slate-800 font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
           >
             <ImageIcon className="w-5 h-5" />
-            <span className="text-sm">Gallery</span>
+            <span className="text-xs md:text-sm">Gallery</span>
           </button>
           <button
             onClick={() => { setActiveTab('blog'); setIsEditingBlog(false); }}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'blog' ? 'bg-slate-100 dark:bg-slate-800 font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+            className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all shrink-0 ${activeTab === 'blog' ? 'bg-slate-100 dark:bg-slate-800 font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
           >
             <BookOpen className="w-5 h-5" />
-            <span className="text-sm">Blog</span>
+            <span className="text-xs md:text-sm">Blog</span>
           </button>
         </nav>
 
-        <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
+        <div className="hidden md:flex mt-auto pt-6 border-t border-slate-100 dark:border-slate-800 flex-col gap-4">
           <div className="flex items-center gap-3 px-4">
             <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
               <User className="w-4 h-4 text-slate-500" />
@@ -391,6 +391,9 @@ const Admin: React.FC = () => {
             <span>Logout</span>
           </button>
         </div>
+        <button onClick={handleLogout} className="md:hidden p-2 text-red-500 ml-auto" aria-label="Logout">
+          <LogOut className="w-5 h-5" />
+        </button>
       </aside>
 
       <main className="flex-grow p-6 md:p-10 overflow-auto">
@@ -411,7 +414,7 @@ const Admin: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
                 <div className="lg:col-span-1 space-y-4">
                   <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 px-4 font-montserrat">Categories</h3>
-                  <div className="space-y-1">
+                  <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0 px-1">
                     {Array.isArray(galleryItems) && galleryItems.map(item => (
                       <div key={item.id} className="relative group/cat">
                         <button
@@ -611,38 +614,40 @@ const Admin: React.FC = () => {
                       New Post
                     </button>
                   </div>
-                  <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="bg-slate-50 dark:bg-slate-800/50">
-                          <th className="p-6 text-[10px] font-bold text-slate-400 uppercase">Title</th>
-                          <th className="p-6 text-[10px] font-bold text-slate-400 uppercase">Status</th>
-                          <th className="p-6 text-[10px] font-bold text-slate-400 uppercase">Date</th>
-                          <th className="p-6 text-[10px] font-bold text-slate-400 uppercase text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                        {blogPosts.map(post => (
-                          <tr key={post.id}>
-                            <td className="p-6 font-bold text-sm">{post.title}</td>
-                            <td className="p-6">
-                              <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase ${post.status === 'published' ? 'bg-green-100 text-green-600 dark:bg-green-950/30' : post.status === 'scheduled' ? 'bg-blue-100 text-blue-600 dark:bg-blue-950/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800'}`}>
-                                {post.status}
-                              </span>
-                            </td>
-                            <td className="p-6 text-xs text-slate-500">
-                              {new Date(post.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                            </td>
-                            <td className="p-6 text-right">
-                              <div className="flex justify-end gap-2">
-                                <button onClick={() => handleEditBlog(post)} className="p-2 text-slate-400"><Edit className="w-4 h-4" /></button>
-                                <button onClick={() => { if (confirm('Delete?')) deleteBlogPost(post.id); }} className="p-2 text-slate-400"><Trash2 className="w-4 h-4" /></button>
-                              </div>
-                            </td>
+                  <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl md:rounded-3xl overflow-hidden shadow-sm">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left min-w-[600px]">
+                        <thead>
+                          <tr className="bg-slate-50 dark:bg-slate-800/50">
+                            <th className="p-6 text-[10px] font-bold text-slate-400 uppercase">Title</th>
+                            <th className="p-6 text-[10px] font-bold text-slate-400 uppercase">Status</th>
+                            <th className="p-6 text-[10px] font-bold text-slate-400 uppercase">Date</th>
+                            <th className="p-6 text-[10px] font-bold text-slate-400 uppercase text-right">Actions</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                          {blogPosts.map(post => (
+                            <tr key={post.id}>
+                              <td className="p-6 font-bold text-sm">{post.title}</td>
+                              <td className="p-6">
+                                <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase ${post.status === 'published' ? 'bg-green-100 text-green-600 dark:bg-green-950/30' : post.status === 'scheduled' ? 'bg-blue-100 text-blue-600 dark:bg-blue-950/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800'}`}>
+                                  {post.status}
+                                </span>
+                              </td>
+                              <td className="p-6 text-xs text-slate-500">
+                                {new Date(post.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </td>
+                              <td className="p-6 text-right">
+                                <div className="flex justify-end gap-2">
+                                  <button onClick={() => handleEditBlog(post)} className="p-2 text-slate-400"><Edit className="w-4 h-4" /></button>
+                                  <button onClick={() => { if (confirm('Delete?')) deleteBlogPost(post.id); }} className="p-2 text-slate-400"><Trash2 className="w-4 h-4" /></button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -655,15 +660,15 @@ const Admin: React.FC = () => {
                       Save Narrative
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                    <div className="lg:col-span-2 space-y-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+                    <div className="lg:col-span-2 space-y-6 md:space-y-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl md:rounded-3xl p-4 md:p-8">
                       <input
                         value={currentBlog.title}
                         onChange={e => setCurrentBlog({ ...currentBlog, title: e.target.value, slug: !currentBlog.id ? e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-') : currentBlog.slug })}
-                        className="w-full text-4xl font-display bg-transparent border-none focus:ring-0 p-0"
+                        className="w-full text-2xl md:text-4xl font-display bg-transparent border-none focus:ring-0 p-0"
                         placeholder="Post Title"
                       />
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input value={currentBlog.slug} onChange={e => setCurrentBlog({ ...currentBlog, slug: e.target.value })} className="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl text-xs" placeholder="slug" />
                         <input type="datetime-local" value={currentBlog.date} onChange={e => setCurrentBlog({ ...currentBlog, date: e.target.value })} className="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl text-xs w-full" />
                       </div>
@@ -685,9 +690,9 @@ const Admin: React.FC = () => {
                           />
                         </label>
                       </div>
-                      <textarea rows={10} value={currentBlog.content} onChange={e => setCurrentBlog({ ...currentBlog, content: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 p-6 rounded-3xl text-sm leading-relaxed" placeholder="Content..." />
+                      <textarea rows={6} value={currentBlog.content} onChange={e => setCurrentBlog({ ...currentBlog, content: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 p-4 md:p-6 rounded-2xl md:rounded-3xl text-sm leading-relaxed" placeholder="Content..." />
                     </div>
-                    <div className="lg:col-span-1 space-y-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8">
+                    <div className="lg:col-span-2 lg:grid-cols-1 space-y-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl md:rounded-3xl p-4 md:p-8">
                       <h3 className="font-display text-xl">Optimization</h3>
                       <textarea rows={3} value={currentBlog.excerpt} onChange={e => setCurrentBlog({ ...currentBlog, excerpt: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-800 p-3 rounded-xl text-xs" placeholder="Excerpt" />
                       <div className="space-y-4 pt-4 border-t border-slate-50 dark:border-slate-800">

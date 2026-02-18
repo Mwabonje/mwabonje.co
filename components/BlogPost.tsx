@@ -43,12 +43,14 @@ const BlogPost: React.FC = () => {
       <motion.article
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="pt-32 pb-24"
+        className="py-6 md:py-12 transition-colors duration-300"
       >
-        <div className="container mx-auto px-6 max-w-4xl">
-          {/* Back button */}
-          <Link to="/blog" className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 hover:text-blue-400 transition-colors mb-12">
-            <ArrowLeft className="w-3 h-3" /> Back to Journal
+        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
+          <Link
+            to="/blog"
+            className="inline-flex items-center gap-2 text-slate-500 hover:text-white transition-colors mb-6 md:mb-10 text-[10px] font-bold uppercase tracking-widest group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Journal
           </Link>
 
           {/* Featured Image */}
@@ -66,11 +68,11 @@ const BlogPost: React.FC = () => {
 
           {/* Title and Excerpt */}
           <div className="space-y-6 mb-16">
-            <h1 className="text-3xl md:text-5xl font-bold leading-tight tracking-tight">
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-montserrat font-bold text-white mb-6 md:mb-8 leading-[1.1] tracking-tight">
               {post.title}
             </h1>
             {post.excerpt && (
-              <p className="text-lg md:text-xl text-slate-400 leading-relaxed font-medium">
+              <p className="text-lg md:text-2xl text-slate-400 font-montserrat leading-relaxed max-w-3xl">
                 {post.excerpt}
               </p>
             )}

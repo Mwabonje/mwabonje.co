@@ -62,14 +62,14 @@ const Blog: React.FC = () => {
   }
 
   return (
-    <div className="bg-[#020617] min-h-screen py-10 transition-colors duration-300">
-      <div className="container mx-auto px-6 max-w-7xl">
+    <div className="bg-[#020617] min-h-screen py-6 md:py-10 transition-colors duration-300">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
 
         {/* Featured Post Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#0f172a] rounded-[2rem] overflow-hidden border border-white/5 mb-12 shadow-2xl"
+          className="bg-[#0f172a] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border border-white/5 mb-8 md:mb-12 shadow-2xl"
         >
           <div className="flex flex-col lg:flex-row">
             {/* Image Container with Reflection Effect */}
@@ -97,12 +97,12 @@ const Blog: React.FC = () => {
                   {featuredPost.seo.keywords[0] || 'Featured'}
                 </span>
               </div>
-              <h2 className="text-3xl md:text-5xl font-montserrat font-bold text-white mb-6 leading-tight tracking-tight hover:text-blue-400 transition-colors">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-montserrat font-bold text-white mb-4 md:mb-6 leading-tight tracking-tight hover:text-blue-400 transition-colors">
                 <Link to={`/blog/${featuredPost.slug}`}>
                   {featuredPost.title}
                 </Link>
               </h2>
-              <p className="text-slate-400 font-montserrat text-base md:text-lg leading-relaxed mb-10 line-clamp-3">
+              <p className="text-slate-400 font-montserrat text-sm md:text-lg leading-relaxed mb-6 md:mb-10 line-clamp-3">
                 {featuredPost.excerpt}
               </p>
 
@@ -127,9 +127,9 @@ const Blog: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className="bg-[#0f172a] rounded-[2rem] overflow-hidden border border-white/5 flex flex-col shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all group"
+              className="bg-[#0f172a] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border border-white/5 flex flex-col shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all group"
             >
-              <Link to={`/blog/${post.slug}`} className="block overflow-hidden aspect-[16/10] m-5 mb-0 rounded-2xl relative">
+              <Link to={`/blog/${post.slug}`} className="block overflow-hidden aspect-[16/10] m-4 md:m-5 mb-0 rounded-xl md:rounded-2xl relative">
                 <img
                   src={post.coverImage}
                   alt={post.title}
@@ -138,8 +138,8 @@ const Blog: React.FC = () => {
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
               </Link>
 
-              <div className="p-8 flex-grow flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
+              <div className="p-6 md:p-8 flex-grow flex flex-col">
+                <div className="flex items-center gap-3 mb-3 md:mb-4">
                   <span className="text-slate-500 text-[10px] font-montserrat font-medium uppercase tracking-wider">
                     {new Date(post.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                   </span>

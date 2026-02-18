@@ -4,6 +4,7 @@ import { useTheme } from '../hooks/useTheme';
 import { NavLink as NavLinkType } from '../types';
 import { Link, useLocation } from 'react-router-dom';
 import { useData } from '../context/DataContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -36,7 +37,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="w-full bg-background-light dark:bg-background-dark transition-colors duration-300 pt-6 md:pt-12 relative">
+      <header className="w-full bg-background-light dark:bg-background-dark transition-colors duration-300 pt-4 md:pt-12 relative overflow-hidden">
         <div className="container mx-auto px-4 md:px-6 relative flex flex-col items-center">
           {/* Controls - The theme and menu buttons */}
           <div className="absolute right-0 top-0 h-10 sm:h-12 md:h-auto md:top-2 flex items-center gap-2 md:gap-4 z-[60]">
@@ -62,8 +63,8 @@ const Header: React.FC = () => {
           </div>
 
           {/* Logo Section */}
-          <Link to="/" className="mb-6 md:mb-10 group relative z-10 block">
-            <h1 className="font-hand text-4xl sm:text-5xl md:text-7xl text-primary dark:text-white transition-opacity text-center leading-tight">
+          <Link to="/" className="mb-4 md:mb-10 group relative z-10 block">
+            <h1 className="font-hand text-3xl xs:text-4xl sm:text-5xl md:text-7xl text-primary dark:text-white transition-opacity text-center leading-tight">
               Mwabonje
             </h1>
           </Link>
@@ -98,30 +99,37 @@ const Header: React.FC = () => {
           </div>
 
           {/* Mobile Navigation Menu */}
-          {isMenuOpen && (
-            <div className="md:hidden flex flex-col items-center space-y-5 animate-in slide-in-from-top-4 fade-in duration-200">
-              {dynamicNavLinks.map((link) => (
-                link.external ? (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    className="text-sm uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300 py-2"
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link
-                    key={link.label}
-                    to={link.href}
-                    onClick={() => handleNavClick(link.href)}
-                    className="text-sm uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300 py-2"
-                  >
-                    {link.label}
-                  </Link>
-                )
-              ))}
-            </div>
-          )}
+          <AnimatePresence>
+            {isMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                className="md:hidden flex flex-col items-center space-y-4 overflow-hidden"
+              >
+                {dynamicNavLinks.map((link) => (
+                  link.external ? (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300 py-1 font-medium"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      key={link.label}
+                      to={link.href}
+                      onClick={() => handleNavClick(link.href)}
+                      className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300 py-1 font-medium"
+                    >
+                      {link.label}
+                    </Link>
+                  )
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </nav>
     </>

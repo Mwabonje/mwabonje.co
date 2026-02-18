@@ -35,8 +35,8 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
   // Else if item has albums, show albums
   // Else show item's images
   const showAlbums = !activeAlbum && item?.albums && item.albums.length > 0;
-  const currentImages = activeAlbum 
-    ? activeAlbum.images 
+  const currentImages = activeAlbum
+    ? activeAlbum.images
     : (item?.images || []);
 
   const handleClose = () => {
@@ -62,38 +62,38 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
           className="fixed inset-0 z-50 flex flex-col bg-white/95 dark:bg-black/95 backdrop-blur-sm overflow-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 md:p-8 border-b border-slate-200 dark:border-slate-800">
-            <div className="flex items-center gap-4">
-              <button 
+          <div className="flex items-center justify-between p-4 md:p-8 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+              <button
                 onClick={handleBack}
                 className="p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                 aria-label="Go back"
               >
                 <ArrowLeft className="w-6 h-6 text-slate-900 dark:text-white" />
               </button>
-              <motion.h2 
+              <motion.h2
                 key={activeAlbum ? activeAlbum.title : item.title}
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
-                className="text-3xl md:text-5xl font-display text-slate-900 dark:text-slate-100"
+                className="text-xl sm:text-3xl md:text-5xl font-display text-slate-900 dark:text-slate-100 truncate"
               >
                 {activeAlbum ? activeAlbum.title : item.title}
               </motion.h2>
             </div>
-            
+
             <button
               onClick={handleClose}
-              className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors group"
+              className="p-1 md:p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors group flex-shrink-0"
             >
-              <X className="w-8 h-8 text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white transition-colors" />
+              <X className="w-6 h-6 md:w-8 md:h-8 text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white transition-colors" />
             </button>
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-6 md:p-8">
+          <div className="flex-1 overflow-y-auto p-4 md:p-8">
             <div className="container mx-auto">
-              
+
               {showAlbums ? (
                 /* Albums Grid */
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
@@ -113,8 +113,8 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
                         loading="lazy"
                         decoding="async"
                       />
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300 flex items-end justify-center pb-10">
-                        <span className="text-white font-display text-3xl tracking-wider drop-shadow-lg text-center px-4">
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300 flex items-end justify-center pb-6 md:pb-10">
+                        <span className="text-white font-display text-2xl md:text-3xl tracking-wider drop-shadow-lg text-center px-4">
                           {album.title}
                         </span>
                       </div>
@@ -143,7 +143,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
                   ))}
                 </div>
               )}
-              
+
             </div>
           </div>
         </motion.div>

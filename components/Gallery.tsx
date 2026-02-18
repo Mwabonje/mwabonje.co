@@ -36,8 +36,8 @@ const Gallery: React.FC = () => {
                 loading="lazy"
                 decoding="async"
               />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300 flex items-end justify-center pb-10">
-                <span className="text-white font-display text-4xl tracking-wider drop-shadow-lg">
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300 flex items-end justify-center pb-6 md:pb-10">
+                <span className="text-white font-display text-2xl sm:text-3xl md:text-4xl tracking-wider drop-shadow-lg text-center px-4">
                   {item.title}
                 </span>
               </div>
@@ -46,9 +46,9 @@ const Gallery: React.FC = () => {
         </div>
       </section>
 
-      <CategoryModal 
-        item={selectedItem} 
-        onClose={() => setSelectedItem(null)} 
+      <CategoryModal
+        item={selectedItem}
+        onClose={() => setSelectedItem(null)}
       />
     </>
   );
