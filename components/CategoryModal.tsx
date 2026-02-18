@@ -59,7 +59,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex flex-col bg-white/95 dark:bg-black/95 backdrop-blur-sm overflow-hidden"
+          className="fixed inset-0 z-[100] flex flex-col bg-white/95 dark:bg-black/95 backdrop-blur-sm overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-8 border-b border-slate-200 dark:border-slate-800">
