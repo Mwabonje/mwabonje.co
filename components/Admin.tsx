@@ -574,14 +574,14 @@ const Admin: React.FC = () => {
                               />
                             </label>
                           </div>
-                          <div className="flex gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl">
+                          <div className="flex flex-col sm:flex-row gap-3 p-3 md:p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl">
                             <input
                               value={newImageUrl}
                               onChange={e => setNewImageUrl(e.target.value)}
                               placeholder="Image URL"
-                              className="flex-1 bg-white dark:bg-slate-900 border-none rounded-xl px-4 py-3 text-sm outline-none"
+                              className="flex-1 bg-white dark:bg-slate-900 border-none rounded-xl px-4 py-3 text-sm outline-none w-full"
                             />
-                            <button onClick={handleAddImage} className="bg-slate-900 dark:bg-white text-white dark:text-black px-6 py-3 rounded-xl font-bold text-xs uppercase">
+                            <button onClick={handleAddImage} className="bg-slate-900 dark:bg-white text-white dark:text-black px-8 py-3 rounded-xl font-bold text-xs uppercase w-full sm:w-auto hover:scale-[1.02] active:scale-[0.98] transition-all">
                               Add
                             </button>
                           </div>
