@@ -1,87 +1,151 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { GalleryItem, BlogPost } from '../types';
-import { initialGalleryItems, initialBlogPosts } from '../data';
+import { insforge } from '../lib/insforge';
 
 interface DataContextType {
   galleryItems: GalleryItem[];
   blogPosts: BlogPost[];
-  updateGalleryItem: (updatedItem: GalleryItem) => void;
-  addGalleryItem: (item: GalleryItem) => void;
-  deleteGalleryItem: (id: number) => void;
-  addBlogPost: (post: BlogPost) => void;
-  updateBlogPost: (post: BlogPost) => void;
-  deleteBlogPost: (id: string) => void;
+  loading: boolean;
+  updateGalleryItem: (updatedItem: GalleryItem) => Promise<void>;
+  addGalleryItem: (item: GalleryItem) => Promise<void>;
+  deleteGalleryItem: (id: number) => Promise<void>;
+  addBlogPost: (post: BlogPost) => Promise<void>;
+  updateBlogPost: (post: BlogPost) => Promise<void>;
+  deleteBlogPost: (id: string) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Initialize from localStorage or fallback to initial data
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(() => {
-    try {
-      const saved = localStorage.getItem('galleryItems');
-      return saved ? JSON.parse(saved) : initialGalleryItems;
-    } catch (e) {
-      console.error("Failed to parse galleryItems from local storage", e);
-      return initialGalleryItems;
-    }
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Helper to map DB blog post to TypeScript interface
+  const mapBlogPostFromDB = (post: any): BlogPost => ({
+    ...post,
+    coverImage: post.cover_image // map snake_case to camelCase
   });
 
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => {
-    try {
-      const saved = localStorage.getItem('blogPosts');
-      return saved ? JSON.parse(saved) : initialBlogPosts;
-    } catch (e) {
-      console.error("Failed to parse blogPosts from local storage", e);
-      return initialBlogPosts;
-    }
-  });
+  const mapBlogPostToDB = (post: BlogPost) => {
+    const { coverImage, ...rest } = post;
+    return {
+      ...rest,
+      cover_image: coverImage
+    };
+  };
 
-  // Persist changes to localStorage
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [galleryRes, blogRes] = await Promise.all([
+        insforge.database.from('gallery_items').select('*').order('id', { ascending: true }),
+        insforge.database.from('blog_posts').select('*').order('created_at', { ascending: false })
+      ]);
+
+      if (galleryRes.data) setGalleryItems(galleryRes.data);
+      if (blogRes.data) setBlogPosts(blogRes.data.map(mapBlogPostFromDB));
+
+      if (galleryRes.error) console.error('Gallery fetch error:', galleryRes.error);
+      if (blogRes.error) console.error('Blog fetch error:', blogRes.error);
+    } catch (e) {
+      console.error('Failed to fetch data from InsForge:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    try {
-      localStorage.setItem('galleryItems', JSON.stringify(galleryItems));
-    } catch (e) {
-      console.error("Failed to save galleryItems to localStorage (likely quota exceeded)", e);
+    fetchData();
+  }, []);
+
+  const updateGalleryItem = async (updatedItem: GalleryItem) => {
+    const { data, error } = await insforge.database
+      .from('gallery_items')
+      .update(updatedItem)
+      .eq('id', updatedItem.id)
+      .select();
+
+    if (!error && data) {
+      setGalleryItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+    } else {
+      console.error('Update gallery error:', error);
     }
-  }, [galleryItems]);
+  };
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
-    } catch (e) {
-      console.error("Failed to save blogPosts to localStorage (likely quota exceeded)", e);
+  const addGalleryItem = async (item: GalleryItem) => {
+    const { data, error } = await insforge.database
+      .from('gallery_items')
+      .insert([item])
+      .select();
+
+    if (!error && data) {
+      setGalleryItems(prev => [...prev, data[0] as GalleryItem]);
+    } else {
+      console.error('Add gallery error:', error);
     }
-  }, [blogPosts]);
-
-  const updateGalleryItem = (updatedItem: GalleryItem) => {
-    setGalleryItems(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
   };
 
-  const addGalleryItem = (item: GalleryItem) => {
-    setGalleryItems(prev => [...prev, item]);
+  const deleteGalleryItem = async (id: number) => {
+    const { error } = await insforge.database
+      .from('gallery_items')
+      .delete()
+      .eq('id', id);
+
+    if (!error) {
+      setGalleryItems(prev => prev.filter(item => item.id !== id));
+    } else {
+      console.error('Delete gallery error:', error);
+    }
   };
 
-  const deleteGalleryItem = (id: number) => {
-    setGalleryItems(prev => prev.filter(item => item.id !== id));
+  const addBlogPost = async (post: BlogPost) => {
+    const dbPost = mapBlogPostToDB(post);
+    const { data, error } = await insforge.database
+      .from('blog_posts')
+      .insert([dbPost])
+      .select();
+
+    if (!error && data) {
+      setBlogPosts(prev => [mapBlogPostFromDB(data[0]), ...prev]);
+    } else {
+      console.error('Add blog error:', error);
+    }
   };
 
-  const addBlogPost = (post: BlogPost) => {
-    setBlogPosts(prev => [post, ...prev]);
+  const updateBlogPost = async (updatedPost: BlogPost) => {
+    const dbPost = mapBlogPostToDB(updatedPost);
+    const { data, error } = await insforge.database
+      .from('blog_posts')
+      .update(dbPost)
+      .eq('id', updatedPost.id)
+      .select();
+
+    if (!error && data) {
+      setBlogPosts(prev => prev.map(post => post.id === updatedPost.id ? updatedPost : post));
+    } else {
+      console.error('Update blog error:', error);
+    }
   };
 
-  const updateBlogPost = (updatedPost: BlogPost) => {
-    setBlogPosts(prev => prev.map(post => post.id === updatedPost.id ? updatedPost : post));
-  };
+  const deleteBlogPost = async (id: string) => {
+    const { error } = await insforge.database
+      .from('blog_posts')
+      .delete()
+      .eq('id', id);
 
-  const deleteBlogPost = (id: string) => {
-    setBlogPosts(prev => prev.filter(post => post.id !== id));
+    if (!error) {
+      setBlogPosts(prev => prev.filter(post => post.id !== id));
+    } else {
+      console.error('Delete blog error:', error);
+    }
   };
 
   return (
     <DataContext.Provider value={{
       galleryItems,
       blogPosts,
+      loading,
       updateGalleryItem,
       addGalleryItem,
       deleteGalleryItem,
