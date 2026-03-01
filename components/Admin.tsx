@@ -26,6 +26,13 @@ const Admin: React.FC = () => {
   const [newAlbumCover, setNewAlbumCover] = useState('');
   const [newCategoryTitle, setNewCategoryTitle] = useState('');
 
+  // Auto-select first category when data loads
+  useEffect(() => {
+    if (!selectedGalleryId && galleryItems.length > 0) {
+      setSelectedGalleryId(galleryItems[0].id);
+    }
+  }, [galleryItems, selectedGalleryId]);
+
   // Blog State
   const [isEditingBlog, setIsEditingBlog] = useState(false);
   const [currentBlog, setCurrentBlog] = useState<BlogPost>({
@@ -117,10 +124,10 @@ const Admin: React.FC = () => {
     setNewAlbumCover('');
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!newCategoryTitle) return;
     const newItem: GalleryItem = {
-      id: Date.now(),
+      id: 0, // Database will generate real ID
       title: newCategoryTitle,
       type: 'wide', // Default type
       src: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d', // Placeholder
@@ -128,9 +135,11 @@ const Admin: React.FC = () => {
       images: [],
       albums: []
     };
-    addGalleryItem(newItem);
+    const createdItem = await addGalleryItem(newItem);
     setNewCategoryTitle('');
-    setSelectedGalleryId(newItem.id);
+    if (createdItem) {
+      setSelectedGalleryId(createdItem.id);
+    }
     setSelectedAlbumId(null);
   };
 

@@ -7,9 +7,9 @@ interface DataContextType {
   blogPosts: BlogPost[];
   loading: boolean;
   updateGalleryItem: (updatedItem: GalleryItem) => Promise<void>;
-  addGalleryItem: (item: GalleryItem) => Promise<void>;
+  addGalleryItem: (item: GalleryItem) => Promise<GalleryItem | undefined>;
   deleteGalleryItem: (id: number) => Promise<void>;
-  addBlogPost: (post: BlogPost) => Promise<void>;
+  addBlogPost: (post: BlogPost) => Promise<BlogPost | undefined>;
   updateBlogPost: (post: BlogPost) => Promise<void>;
   deleteBlogPost: (id: string) => Promise<void>;
 }
@@ -74,15 +74,20 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const addGalleryItem = async (item: GalleryItem) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...itemToInsert } = item;
     const { data, error } = await insforge.database
       .from('gallery_items')
-      .insert([item])
+      .insert([itemToInsert])
       .select();
 
     if (!error && data) {
-      setGalleryItems(prev => [...prev, data[0] as GalleryItem]);
+      const newItem = data[0] as GalleryItem;
+      setGalleryItems(prev => [...prev, newItem]);
+      return newItem;
     } else {
       console.error('Add gallery error:', error);
+      return undefined;
     }
   };
 
@@ -101,15 +106,21 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const addBlogPost = async (post: BlogPost) => {
     const dbPost = mapBlogPostToDB(post);
+    // Remove ID for insert to allow DB to generate UUID if needed, 
+    // though the code currently sends a timestamp based one.
+    // Let's stick with what the code does but return the result.
     const { data, error } = await insforge.database
       .from('blog_posts')
       .insert([dbPost])
       .select();
 
     if (!error && data) {
-      setBlogPosts(prev => [mapBlogPostFromDB(data[0]), ...prev]);
+      const newPost = mapBlogPostFromDB(data[0]);
+      setBlogPosts(prev => [newPost, ...prev]);
+      return newPost;
     } else {
       console.error('Add blog error:', error);
+      return undefined;
     }
   };
 
