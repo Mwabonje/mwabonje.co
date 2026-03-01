@@ -8,6 +8,8 @@ import {
   Settings, User, Globe, Tag, Eye
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { insforge } from '../lib/insforge';
+
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -233,25 +235,28 @@ const Admin: React.FC = () => {
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || !selectedGalleryId) return;
 
-    // Process files one by one to avoid race conditions
     const fileArray = Array.from(files);
 
     for (const file of fileArray) {
       if (!file.type.startsWith('image/')) continue;
 
-      // Limit size to 5MB to prevent localStorage crash
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`File ${file.name} is too large. Please use images smaller than 5MB.`);
+      if (file.size > 20 * 1024 * 1024) {
+        alert(`File ${file.name} is too large. Please use images smaller than 20MB.`);
         continue;
       }
 
-      const url = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target?.result as string);
-        reader.readAsDataURL(file);
-      });
+      // Upload to InsForge Storage
+      const { data, error } = await insforge.storage
+        .from('portfolio-images')
+        .uploadAuto(file);
 
-      if (!url) continue;
+      if (error || !data) {
+        console.error('Image upload error:', error);
+        alert(`Failed to upload ${file.name}. Please try again.`);
+        continue;
+      }
+
+      const url = data.url;
 
       // Always find the LATEST item from galleryItems to avoid state drift
       const currentItems = [...galleryItems];
@@ -275,39 +280,43 @@ const Admin: React.FC = () => {
   const handleBlogCoverUpload = async (file: File | null) => {
     if (!file || !file.type.startsWith('image/')) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert("File is too large. Please use images smaller than 5MB.");
+    if (file.size > 20 * 1024 * 1024) {
+      alert('File is too large. Please use images smaller than 20MB.');
       return;
     }
 
-    const url = await new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string);
-      reader.readAsDataURL(file);
-    });
+    const { data, error } = await insforge.storage
+      .from('portfolio-images')
+      .uploadAuto(file);
 
-    if (url) {
-      setCurrentBlog({ ...currentBlog, coverImage: url });
+    if (error || !data) {
+      console.error('Blog cover upload error:', error);
+      alert('Failed to upload cover image. Please try again.');
+      return;
     }
+
+    setCurrentBlog({ ...currentBlog, coverImage: data.url });
   };
 
   const handleAlbumCoverUpload = async (file: File | null) => {
     if (!file || !file.type.startsWith('image/')) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert("File is too large. Please use images smaller than 5MB.");
+    if (file.size > 20 * 1024 * 1024) {
+      alert('File is too large. Please use images smaller than 20MB.');
       return;
     }
 
-    const url = await new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string);
-      reader.readAsDataURL(file);
-    });
+    const { data, error } = await insforge.storage
+      .from('portfolio-images')
+      .uploadAuto(file);
 
-    if (url) {
-      setNewAlbumCover(url);
+    if (error || !data) {
+      console.error('Album cover upload error:', error);
+      alert('Failed to upload album cover. Please try again.');
+      return;
     }
+
+    setNewAlbumCover(data.url);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
