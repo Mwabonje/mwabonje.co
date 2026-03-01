@@ -319,6 +319,29 @@ const Admin: React.FC = () => {
     setNewAlbumCover(data.url);
   };
 
+  const handleCategoryCoverUpload = async (file: File | null) => {
+    if (!file || !file.type.startsWith('image/') || !selectedGalleryId) return;
+
+    if (file.size > 20 * 1024 * 1024) {
+      alert('File is too large. Please use images smaller than 20MB.');
+      return;
+    }
+
+    const { data, error } = await insforge.storage
+      .from('portfolio-images')
+      .uploadAuto(file);
+
+    if (error || !data) {
+      console.error('Category cover upload error:', error);
+      alert('Failed to upload cover image. Please try again.');
+      return;
+    }
+
+    const item = galleryItems.find(i => i.id === selectedGalleryId);
+    if (!item) return;
+    updateGalleryItem({ ...item, src: data.url });
+  };
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -478,6 +501,36 @@ const Admin: React.FC = () => {
 
                     return (
                       <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm space-y-8">
+                        {/* Category Cover Image */}
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-bold flex items-center gap-2">
+                            <ImageIcon className="w-4 h-4 text-slate-400" />
+                            Category Cover Photo
+                          </h4>
+                          <div className="flex items-center gap-4">
+                            <div className="w-20 h-16 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-800 shrink-0">
+                              <img src={item.src} alt={item.title} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 flex gap-2">
+                              <input
+                                value={item.src}
+                                onChange={e => updateGalleryItem({ ...item, src: e.target.value })}
+                                placeholder="Cover image URL"
+                                className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-xs outline-none"
+                              />
+                              <label className="px-4 py-3 bg-slate-900 dark:bg-white text-white dark:text-black rounded-xl cursor-pointer hover:opacity-90 transition-opacity flex items-center gap-2 text-[10px] font-bold uppercase whitespace-nowrap">
+                                <ImageIcon className="w-3.5 h-3.5" />
+                                Upload
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => handleCategoryCoverUpload(e.target.files?.[0] || null)}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        </div>
                         {(item.albums || item.id === 7) && (
                           <div className="space-y-6">
                             <h4 className="text-sm font-bold flex items-center gap-2">
