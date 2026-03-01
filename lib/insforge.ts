@@ -1,21 +1,15 @@
 import { createClient } from '@insforge/sdk';
 
-// Trigger rebuild: 2026-03-01 20:58
-// Robust environment variable resolution for both dev and prod (Netlify)
-const apiKey = import.meta.env.VITE_INSFORGE_API_KEY || (typeof process !== 'undefined' ? process.env.VITE_INSFORGE_API_KEY : 'ik_1fcf8fb6d99b0b21df0b34e78fbf7808');
-const baseUrl = import.meta.env.VITE_INSFORGE_API_BASE_URL || (typeof process !== 'undefined' ? process.env.VITE_INSFORGE_API_BASE_URL : 'https://9se6drpg.us-east.insforge.app');
+// The anon JWT is used for client-side requests (including storage uploads)
+// The admin API key is used for privileged database access
+const PRODUCTION_URL = 'https://9se6drpg.us-east.insforge.app';
+const ANON_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3OC0xMjM0LTU2NzgtOTBhYi1jZGVmMTIzNDU2NzgiLCJlbWFpbCI6ImFub25AaW5zZm9yZ2UuY29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTUxNjR9.v5-yWbHc51pr-Hf7Ns590nga4Vn6XSGaeKuppthEmx4';
 
-console.log('InsForge Production Debug:', {
-    hasKey: !!apiKey,
-    baseUrl: baseUrl,
-    isLocalhost: baseUrl?.includes('localhost')
-});
+const baseUrl = import.meta.env.VITE_INSFORGE_API_BASE_URL || PRODUCTION_URL;
 
-if (!apiKey || !baseUrl) {
-    console.warn('InsForge credentials missing. Falling back to defaults.');
-}
+console.log('InsForge Init:', { baseUrl, isProduction: baseUrl === PRODUCTION_URL });
 
 export const insforge = createClient({
-    baseUrl: baseUrl || 'https://9se6drpg.us-east.insforge.app', // Explicit fallback to production
-    anonKey: apiKey || 'ik_1fcf8fb6d99b0b21df0b34e78fbf7808',
+    baseUrl: baseUrl || PRODUCTION_URL,
+    anonKey: ANON_JWT,
 });
