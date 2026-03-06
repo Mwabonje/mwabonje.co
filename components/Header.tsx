@@ -38,36 +38,38 @@ const Header: React.FC = () => {
   return (
     <>
       <header className="w-full bg-background-light dark:bg-background-dark transition-colors duration-300 pt-4 md:pt-12 relative">
-        <div className="container mx-auto px-4 md:px-6 relative flex flex-col items-center">
-          {/* Controls - The theme and menu buttons */}
-          <div className="absolute right-4 top-4 md:top-2 flex items-center gap-2 md:gap-4 z-[60]">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
-              aria-label="Toggle Dark Mode"
-            >
-              {theme === 'light' ? (
-                <Moon className="h-6 w-6 text-slate-800" strokeWidth={2} />
-              ) : (
-                <Sun className="h-6 w-6 text-yellow-400" strokeWidth={2} />
-              )}
-            </button>
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="relative flex items-center justify-center mb-4 md:mb-10">
+            {/* Logo Section */}
+            <Link to="/" className="group relative z-10 block">
+              <h1 className="font-hand text-3xl xs:text-4xl sm:text-5xl md:text-7xl text-primary dark:text-white transition-opacity text-center leading-tight">
+                Mwabonje
+              </h1>
+            </Link>
 
-            <button
-              className="md:hidden p-2 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle Menu"
-            >
-              {isMenuOpen ? <X className="h-6 w-6" strokeWidth={2} /> : <Menu className="h-6 w-6" strokeWidth={2} />}
-            </button>
+            {/* Controls - The theme and menu buttons */}
+            <div className="absolute right-0 inset-y-0 flex items-center gap-2 md:gap-4 z-[60]">
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
+                aria-label="Toggle Dark Mode"
+              >
+                {theme === 'light' ? (
+                  <Moon className="h-6 w-6 text-slate-800" strokeWidth={2} />
+                ) : (
+                  <Sun className="h-6 w-6 text-yellow-400" strokeWidth={2} />
+                )}
+              </button>
+
+              <button
+                className="md:hidden p-2 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Toggle Menu"
+              >
+                {isMenuOpen ? <X className="h-6 w-6" strokeWidth={2} /> : <Menu className="h-6 w-6" strokeWidth={2} />}
+              </button>
+            </div>
           </div>
-
-          {/* Logo Section */}
-          <Link to="/" className="mb-4 md:mb-10 group relative z-10 block">
-            <h1 className="font-hand text-3xl xs:text-4xl sm:text-5xl md:text-7xl text-primary dark:text-white transition-opacity text-center leading-tight">
-              Mwabonje
-            </h1>
-          </Link>
         </div>
       </header>
 
