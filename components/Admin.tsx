@@ -457,22 +457,21 @@ const Admin: React.FC = () => {
                   <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-400 px-4 font-montserrat">Categories</h3>
                   <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0 px-1">
                     {Array.isArray(galleryItems) && galleryItems.map(item => (
-                      <div key={item.id} className="relative group/cat">
-                        <button
-                          onClick={() => { setSelectedGalleryId(item.id); setSelectedAlbumId(null); }}
-                          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${selectedGalleryId === item.id ? 'bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 font-bold translate-x-1' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-                        >
+                      <div
+                        key={item.id}
+                        onClick={() => { setSelectedGalleryId(item.id); setSelectedAlbumId(null); }}
+                        className={`group/cat w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all cursor-pointer ${selectedGalleryId === item.id ? 'bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 font-bold translate-x-1' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                      >
+                        <div className="flex items-center gap-2">
                           <span className="text-sm font-montserrat">{item.title}</span>
-                          {selectedGalleryId === item.id ? (
-                            <ChevronRight className="w-4 h-4" />
-                          ) : (
-                            <button
-                              onClick={(e) => handleDeleteCategory(item.id, e)}
-                              className="opacity-0 group-hover/cat:opacity-100 p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"
-                            >
-                              <Trash2 className="w-3.3 h-3.3" />
-                            </button>
-                          )}
+                          {selectedGalleryId === item.id && <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+                        </div>
+                        <button
+                          onClick={(e) => handleDeleteCategory(item.id, e)}
+                          className={`p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all ${selectedGalleryId === item.id ? 'opacity-100' : 'opacity-0 group-hover/cat:opacity-100'}`}
+                          title="Delete Category"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     ))}
