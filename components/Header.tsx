@@ -19,7 +19,7 @@ const Header: React.FC = () => {
       href: '/#work'
     })),
     { label: 'Blog', href: '/blog' },
-    { label: 'About', href: '/#about' },
+    { label: 'About', href: '/about' },
     { label: 'Book', href: 'https://mwabonjebooking.netlify.app/', external: true },
   ];
 

@@ -12,7 +12,6 @@ import { DataProvider, useData } from './context/DataContext';
 const HomePage: React.FC = () => (
   <>
     <Gallery />
-    <About />
   </>
 );
 
@@ -36,6 +35,7 @@ const AppContent: React.FC = () => {
       <main className="flex-grow pt-10 md:pt-16">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<About />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
