@@ -902,6 +902,16 @@ const Admin: React.FC = () => {
                   <div className="lg:col-span-2 space-y-8">
                     <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm space-y-8">
                       <div className="space-y-4">
+                        <label className="text-[10px] uppercase font-bold text-slate-400">Specialties / Tags</label>
+                        <input
+                          value={aboutForm.specialties}
+                          onChange={e => setAboutForm({ ...aboutForm, specialties: e.target.value })}
+                          className="w-full text-sm font-medium bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-slate-200 dark:focus:ring-slate-700"
+                          placeholder="e.g. Architecture • Travel • Conceptual"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
                         <label className="text-[10px] uppercase font-bold text-slate-400">Intro Heading</label>
                         <input
                           value={aboutForm.intro_heading}

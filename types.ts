@@ -52,5 +52,6 @@ export interface AboutContent {
   bio_text_p2: string;
   philosophy_quote: string;
   philosophy_author: string;
+  specialties: string;
   updated_at?: string;
 }

@@ -46,7 +46,7 @@ const About: React.FC = () => {
                         className="text-center mb-12 md:mb-20"
                     >
                         <p className="text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em] text-xs font-bold mb-6">
-                            Architecture • Travel • Conceptual
+                            {aboutContent.specialties}
                         </p>
                         <h2 className="font-serif text-3xl md:text-5xl text-slate-900 dark:text-white leading-tight max-w-2xl mx-auto italic">
                             "{aboutContent.intro_heading}"
