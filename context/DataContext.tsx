@@ -93,6 +93,43 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const deleteGalleryItem = async (id: number) => {
+    // 1. Find the item to get its storage URLs
+    const itemToDelete = galleryItems.find(item => item.id === id);
+
+    if (itemToDelete) {
+      const urlsToDelete: string[] = [];
+
+      // Collect all image URLs
+      if (itemToDelete.src) urlsToDelete.push(itemToDelete.src);
+      if (itemToDelete.images) urlsToDelete.push(...itemToDelete.images);
+
+      itemToDelete.albums?.forEach(album => {
+        if (album.src) urlsToDelete.push(album.src);
+        if (album.images) urlsToDelete.push(...album.images);
+      });
+
+      // Filter to only include InsForge storage URLs and extract the filename/path
+      const storagePrefix = '/storage/buckets/portfolio-images/objects/';
+      const filesToRemove = urlsToDelete
+        .filter(url => url.includes(storagePrefix))
+        .map(url => {
+          const parts = url.split(storagePrefix);
+          return parts[parts.length - 1]; // Get the filename part
+        })
+        // Remove duplicates and empty strings
+        .filter((val, index, self) => val && self.indexOf(val) === index);
+
+      if (filesToRemove.length > 0) {
+        console.log('Cleaning up storage files:', filesToRemove);
+        for (const file of filesToRemove) {
+          await insforge.storage
+            .from('portfolio-images')
+            .remove(file);
+        }
+      }
+    }
+
+    // 2. Delete from database
     const { error } = await insforge.database
       .from('gallery_items')
       .delete()
@@ -142,6 +179,34 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const deleteBlogPost = async (id: string) => {
+    // 1. Find the post to get its storage URLs
+    const postToDelete = blogPosts.find(post => post.id === id);
+
+    if (postToDelete) {
+      const urlsToDelete: string[] = [];
+      if (postToDelete.coverImage) urlsToDelete.push(postToDelete.coverImage);
+      if (postToDelete.author?.avatar) urlsToDelete.push(postToDelete.author.avatar);
+
+      const storagePrefix = '/storage/buckets/portfolio-images/objects/';
+      const filesToRemove = urlsToDelete
+        .filter(url => url.includes(storagePrefix))
+        .map(url => {
+          const parts = url.split(storagePrefix);
+          return parts[parts.length - 1];
+        })
+        .filter((val, index, self) => val && self.indexOf(val) === index);
+
+      if (filesToRemove.length > 0) {
+        console.log('Cleaning up blog storage files:', filesToRemove);
+        for (const file of filesToRemove) {
+          await insforge.storage
+            .from('portfolio-images')
+            .remove(file);
+        }
+      }
+    }
+
+    // 2. Delete from database
     const { error } = await insforge.database
       .from('blog_posts')
       .delete()
