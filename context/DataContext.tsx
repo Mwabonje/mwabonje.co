@@ -110,7 +110,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (itemToDelete.images) urlsToDelete.push(...itemToDelete.images);
 
       itemToDelete.albums?.forEach(album => {
-        if (album.src) urlsToDelete.push(album.src);
+        if (album.cover) urlsToDelete.push(album.cover);
         if (album.images) urlsToDelete.push(...album.images);
       });
 
@@ -128,9 +128,13 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (filesToRemove.length > 0) {
         console.log('Cleaning up storage files:', filesToRemove);
         for (const file of filesToRemove) {
-          await insforge.storage
-            .from('portfolio-images')
-            .remove(file);
+          try {
+            await insforge.storage
+              .from('portfolio-images')
+              .remove(file);
+          } catch (storageError) {
+            console.warn(`Failed to remove file ${file} from storage:`, storageError);
+          }
         }
       }
     }
@@ -143,8 +147,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     if (!error) {
       setGalleryItems(prev => prev.filter(item => item.id !== id));
+      console.log('Successfully deleted gallery item:', id);
     } else {
       console.error('Delete gallery error:', error);
+      throw error; // Throw so UI can handle/display it if needed
     }
   };
 

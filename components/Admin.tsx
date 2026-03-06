@@ -11,6 +11,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { insforge } from '../lib/insforge';
 
 
+const ADMIN_PASSWORD = 'admin123';
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('adminAuth') === 'true';
@@ -83,7 +86,7 @@ const Admin: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin123') {
+    if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       localStorage.setItem('adminAuth', 'true');
     } else {
@@ -162,13 +165,17 @@ const Admin: React.FC = () => {
     setSelectedAlbumId(null);
   };
 
-  const handleDeleteCategory = (id: number, e: React.MouseEvent) => {
+  const handleDeleteCategory = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm('Delete category and all its contents?')) {
-      deleteGalleryItem(id);
-      if (selectedGalleryId === id) {
-        setSelectedGalleryId(galleryItems.find(i => i.id !== id)?.id || null);
-        setSelectedAlbumId(null);
+      try {
+        await deleteGalleryItem(id);
+        if (selectedGalleryId === id) {
+          setSelectedGalleryId(galleryItems.find(i => i.id !== id)?.id || null);
+          setSelectedAlbumId(null);
+        }
+      } catch (error) {
+        alert('Failed to delete category. Please try again.');
       }
     }
   };
@@ -253,17 +260,22 @@ const Admin: React.FC = () => {
     if (!files || !selectedGalleryId) return;
 
     const fileArray = Array.from(files);
-    const newUrls: string[] = [];
 
-    const interval = simulateProgress();
-    for (const file of fileArray) {
-      if (!file.type.startsWith('image/')) continue;
-
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`File ${file.name} is too large. Please use images smaller than 5MB.`);
-        continue;
+    // Pre-filter oversized files
+    const validFiles = fileArray.filter(file => {
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum allowed size is 5MB.`);
+        return false;
       }
+      return file.type.startsWith('image/');
+    });
 
+    if (validFiles.length === 0) return;
+
+    const newUrls: string[] = [];
+    const interval = simulateProgress();
+
+    for (const file of validFiles) {
       // Upload to InsForge Storage
       const { data, error } = await insforge.storage
         .from('portfolio-images')
@@ -302,8 +314,8 @@ const Admin: React.FC = () => {
   const handleBlogCoverUpload = async (file: File | null) => {
     if (!file || !file.type.startsWith('image/')) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File is too large. Please use images smaller than 5MB.');
+    if (file.size > MAX_FILE_SIZE) {
+      alert(`File is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum allowed size is 5MB.`);
       return;
     }
 
@@ -326,8 +338,8 @@ const Admin: React.FC = () => {
   const handleAlbumCoverUpload = async (file: File | null) => {
     if (!file || !file.type.startsWith('image/')) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File is too large. Please use images smaller than 5MB.');
+    if (file.size > MAX_FILE_SIZE) {
+      alert(`File is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum allowed size is 5MB.`);
       return;
     }
 
@@ -350,8 +362,8 @@ const Admin: React.FC = () => {
   const handleCategoryCoverUpload = async (file: File | null) => {
     if (!file || !file.type.startsWith('image/') || !selectedGalleryId) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File is too large. Please use images smaller than 5MB.');
+    if (file.size > MAX_FILE_SIZE) {
+      alert(`File is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum allowed size is 5MB.`);
       return;
     }
 
@@ -376,8 +388,8 @@ const Admin: React.FC = () => {
   const handleAboutImageUpload = async (file: File | null) => {
     if (!file || !aboutForm) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File is too large. Please use images smaller than 5MB.');
+    if (file.size > MAX_FILE_SIZE) {
+      alert(`File is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum allowed size is 5MB.`);
       return;
     }
 
