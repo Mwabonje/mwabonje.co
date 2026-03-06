@@ -60,10 +60,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const updateGalleryItem = async (updatedItem: GalleryItem) => {
+    const { id, ...itemToUpdate } = updatedItem;
     const { data, error } = await insforge.database
       .from('gallery_items')
-      .update(updatedItem)
-      .eq('id', updatedItem.id)
+      .update(itemToUpdate)
+      .eq('id', id)
       .select();
 
     if (!error && data) {
@@ -126,10 +127,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateBlogPost = async (updatedPost: BlogPost) => {
     const dbPost = mapBlogPostToDB(updatedPost);
+    const { id, ...postToUpdate } = dbPost;
     const { data, error } = await insforge.database
       .from('blog_posts')
-      .update(dbPost)
-      .eq('id', updatedPost.id)
+      .update(postToUpdate)
+      .eq('id', id)
       .select();
 
     if (!error && data) {
