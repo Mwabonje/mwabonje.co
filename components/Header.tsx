@@ -37,10 +37,10 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="w-full bg-background-light dark:bg-background-dark transition-colors duration-300 pt-4 md:pt-12 relative overflow-hidden">
+      <header className="w-full bg-background-light dark:bg-background-dark transition-colors duration-300 pt-4 md:pt-12 relative">
         <div className="container mx-auto px-4 md:px-6 relative flex flex-col items-center">
           {/* Controls - The theme and menu buttons */}
-          <div className="absolute right-0 top-0 h-10 sm:h-12 md:h-auto md:top-2 flex items-center gap-2 md:gap-4 z-[60]">
+          <div className="absolute right-4 top-4 md:top-2 flex items-center gap-2 md:gap-4 z-[60]">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
