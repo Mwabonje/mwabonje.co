@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { ArrowLeft, User, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
+import SmoothImage from './SmoothImage';
 
 const BlogPost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -59,10 +60,11 @@ const BlogPost: React.FC = () => {
             animate={{ y: 0, opacity: 1 }}
             className="aspect-[16/9] w-full rounded-[2rem] overflow-hidden shadow-2xl mb-16 ring-1 ring-white/10"
           >
-            <img
+            <SmoothImage
               src={post.coverImage}
               alt={post.title}
               className="w-full h-full object-cover"
+              containerClassName="w-full h-full"
             />
           </motion.div>
 

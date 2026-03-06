@@ -1,5 +1,6 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import Gallery from './components/Gallery';
 import Footer from './components/Footer';
@@ -17,6 +18,7 @@ const HomePage: React.FC = () => (
 
 const AppContent: React.FC = () => {
   const { loading } = useData();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -32,14 +34,81 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark">
       <Header />
-      <main className="flex-grow pt-8 md:pt-16">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
-        </Routes>
+      <main className="flex-grow pt-8 md:pt-16 overflow-x-hidden">
+        <AnimatePresence mode="wait">
+          <Routes location={location}>
+            <Route
+              path="/"
+              element={
+                <motion.div
+                  key="home"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                >
+                  <HomePage />
+                </motion.div>
+              }
+            />
+            <Route
+              path="/about"
+              element={
+                <motion.div
+                  key="about"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                >
+                  <About />
+                </motion.div>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <motion.div
+                  key="admin"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Admin />
+                </motion.div>
+              }
+            />
+            <Route
+              path="/blog"
+              element={
+                <motion.div
+                  key="blog"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                >
+                  <Blog />
+                </motion.div>
+              }
+            />
+            <Route
+              path="/blog/:slug"
+              element={
+                <motion.div
+                  key={location.pathname}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.02 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                >
+                  <BlogPost />
+                </motion.div>
+              }
+            />
+          </Routes>
+        </AnimatePresence>
       </main>
       <Footer />
     </div>

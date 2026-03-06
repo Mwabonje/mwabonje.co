@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowLeft } from 'lucide-react';
 import { GalleryItem, Album } from '../types';
+import SmoothImage from './SmoothImage';
 
 interface CategoryModalProps {
   item: GalleryItem | null;
@@ -106,12 +107,12 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
                       onClick={() => setActiveAlbum(album)}
                       className="relative group overflow-hidden bg-slate-100 dark:bg-slate-900 rounded-sm cursor-pointer aspect-[4/3]"
                     >
-                      <img
+                      <SmoothImage
                         src={album.cover}
                         alt={album.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        loading="lazy"
-                        decoding="async"
+                        className="w-full h-full object-cover"
+                        containerClassName="w-full h-full"
+                        hoverEffect={true}
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300 flex items-end justify-center pb-6 md:pb-10">
                         <span className="text-white font-display text-2xl md:text-3xl tracking-wider drop-shadow-lg text-center px-4">
@@ -132,12 +133,12 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
                       transition={{ delay: index * 0.1 + 0.2 }}
                       className="break-inside-avoid rounded-sm overflow-hidden bg-slate-100 dark:bg-slate-900"
                     >
-                      <img
+                      <SmoothImage
                         src={imgSrc}
                         alt={`${activeAlbum ? activeAlbum.title : item.title} photo ${index + 1}`}
-                        className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500"
-                        loading="lazy"
-                        decoding="async"
+                        className="w-full h-auto object-cover"
+                        containerClassName="w-full h-full"
+                        hoverEffect={true}
                       />
                     </motion.div>
                   ))}

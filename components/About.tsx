@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useData } from '../context/DataContext';
+import SmoothImage from './SmoothImage';
 
 const About: React.FC = () => {
     const { aboutContent, loading } = useData();
@@ -28,13 +29,12 @@ const About: React.FC = () => {
                         transition={{ duration: 0.8 }}
                         className="w-full mb-16 md:mb-24"
                     >
-                        <div className="relative aspect-[4/5] md:aspect-[16/9] overflow-hidden rounded-sm grayscale hover:grayscale-0 transition-all duration-1000">
-                            <img
-                                src={aboutContent.image_url}
-                                alt="Mwabonje - Professional Photographer"
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
+                        <SmoothImage
+                            src={aboutContent.image_url}
+                            alt="Mwabonje - Professional Photographer"
+                            className="w-full h-full object-cover"
+                            containerClassName="w-full h-full grayscale hover:grayscale-0 transition-all duration-1000"
+                        />
                     </motion.div>
 
                     {/* Intro Text */}

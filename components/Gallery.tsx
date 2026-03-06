@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { GalleryItem } from '../types';
 import CategoryModal from './CategoryModal';
 import { useData } from '../context/DataContext';
+import SmoothImage from './SmoothImage';
 
 const Gallery: React.FC = () => {
   const { galleryItems } = useData();
@@ -29,12 +30,12 @@ const Gallery: React.FC = () => {
               onClick={() => setSelectedItem(item)}
               className="relative group overflow-hidden bg-slate-100 dark:bg-slate-900 rounded-sm cursor-pointer aspect-[4/3]"
             >
-              <img
+              <SmoothImage
                 src={item.src}
                 alt={item.alt}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
-                decoding="async"
+                className="w-full h-full object-cover"
+                containerClassName="w-full h-full"
+                hoverEffect={true}
               />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300 flex items-end justify-center pb-6 md:pb-10">
                 <span className="text-white font-display text-2xl sm:text-3xl md:text-4xl tracking-wider drop-shadow-lg text-center px-4">

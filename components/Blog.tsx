@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { BlogPost } from '../types';
 import { motion } from 'framer-motion';
+import SmoothImage from './SmoothImage';
 
 const AuthorAvatar: React.FC<{ name?: string; avatar?: string }> = ({ name = 'Anonymous', avatar }) => {
   const initials = name
@@ -22,7 +23,7 @@ const AuthorAvatar: React.FC<{ name?: string; avatar?: string }> = ({ name = 'An
   return (
     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs ring-2 ring-white/10 ${avatar ? '' : colors[colorIndex]}`}>
       {avatar ? (
-        <img src={avatar} alt={name} className="w-full h-full rounded-full object-cover" />
+        <SmoothImage src={avatar} alt={name} className="w-full h-full rounded-full object-cover" containerClassName="w-full h-full rounded-full" />
       ) : (
         initials
       )}
@@ -75,13 +76,13 @@ const Blog: React.FC = () => {
             {/* Image Container with Reflection Effect */}
             <div className="lg:w-1/2 p-6 md:p-8">
               <div className="relative group">
-                <div className="aspect-[16/10] rounded-2xl overflow-hidden shadow-xl ring-1 ring-white/10">
-                  <img
-                    src={featuredPost.coverImage}
-                    alt={featuredPost.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                </div>
+                <SmoothImage
+                  src={featuredPost.coverImage}
+                  alt={featuredPost.title}
+                  className="w-full h-full object-cover"
+                  containerClassName="w-full h-full"
+                  hoverEffect={true}
+                />
                 {/* Reflection effect placeholder - subtle gradient below */}
                 <div className="absolute -bottom-8 left-0 right-0 h-8 bg-gradient-to-b from-white/10 to-transparent blur-xl opacity-50 group-hover:opacity-70 transition-opacity" />
               </div>
@@ -130,10 +131,12 @@ const Blog: React.FC = () => {
               className="bg-[#0f172a] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border border-white/5 flex flex-col shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all group"
             >
               <Link to={`/blog/${post.slug}`} className="block overflow-hidden aspect-[16/10] m-4 md:m-5 mb-0 rounded-xl md:rounded-2xl relative">
-                <img
+                <SmoothImage
                   src={post.coverImage}
                   alt={post.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover"
+                  containerClassName="w-full h-full"
+                  hoverEffect={true}
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
               </Link>
