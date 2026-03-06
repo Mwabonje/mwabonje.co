@@ -9,22 +9,6 @@ const Gallery: React.FC = () => {
   const { galleryItems } = useData();
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
 
-  const preloadImages = (item: GalleryItem) => {
-    const urlsToPreload: string[] = [];
-    if (item.images) urlsToPreload.push(...item.images);
-    if (item.albums) {
-      item.albums.forEach(album => {
-        urlsToPreload.push(album.cover);
-        urlsToPreload.push(...album.images);
-      });
-    }
-
-    urlsToPreload.forEach(url => {
-      const img = new Image();
-      img.src = url;
-    });
-  };
-
   if (!galleryItems || galleryItems.length === 0) {
     return (
       <section id="work" className="container mx-auto px-6 mb-20 text-center text-slate-500">
@@ -44,7 +28,6 @@ const Gallery: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               onClick={() => setSelectedItem(item)}
-              onMouseEnter={() => preloadImages(item)}
               className="relative group overflow-hidden bg-slate-100 dark:bg-slate-900 rounded-sm cursor-pointer aspect-[4/3]"
             >
               <SmoothImage
@@ -53,6 +36,7 @@ const Gallery: React.FC = () => {
                 className="w-full h-full object-cover"
                 containerClassName="w-full h-full"
                 hoverEffect={true}
+                loading="eager"
               />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300 flex items-end justify-center pb-6 md:pb-10">
                 <span className="text-white font-display text-2xl sm:text-3xl md:text-4xl tracking-wider drop-shadow-lg text-center px-4">

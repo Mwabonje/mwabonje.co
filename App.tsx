@@ -10,6 +10,7 @@ import BlogPost from './components/BlogPost';
 import About from './components/About';
 import { DataProvider, useData } from './context/DataContext';
 import { useSmoothScroll } from './hooks/useSmoothScroll';
+import { useGlobalPreload } from './hooks/useGlobalPreload';
 
 const HomePage: React.FC = () => (
   <>
@@ -18,9 +19,10 @@ const HomePage: React.FC = () => (
 );
 
 const AppContent: React.FC = () => {
-  const { loading } = useData();
+  const { loading, galleryItems, blogPosts } = useData();
   const location = useLocation();
   useSmoothScroll();
+  useGlobalPreload(galleryItems, blogPosts);
 
   if (loading) {
     return (

@@ -22,7 +22,7 @@ const SmoothImage: React.FC<SmoothImageProps> = ({
     decoding = "async",
     onClick,
     hoverEffect = false,
-    duration = 0.8
+    duration = 0.3
 }) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState(false);
