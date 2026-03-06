@@ -40,11 +40,9 @@ const SmoothImage: React.FC<SmoothImageProps> = ({
             <AnimatePresence>
                 {!isLoaded && !error && (
                     <motion.div
-                        initial={{ opacity: 0.5 }}
-                        animate={{ opacity: [0.5, 0.8, 0.5] }}
+                        initial={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute inset-0 bg-slate-200 dark:bg-slate-800"
+                        className="absolute inset-0 bg-slate-100 dark:bg-slate-900"
                     />
                 )}
             </AnimatePresence>
