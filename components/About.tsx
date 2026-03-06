@@ -16,7 +16,7 @@ const About: React.FC = () => {
     if (!aboutContent) return null;
 
     return (
-        <section id="about" className="bg-background-light dark:bg-background-dark pt-4 md:pt-4 pb-12 md:pb-20 transition-colors duration-300">
+        <section id="about" className="bg-background-light dark:bg-background-dark pt-12 md:pt-20 pb-12 md:pb-20 transition-colors duration-300">
             <div className="container mx-auto px-6">
                 <div className="max-w-4xl mx-auto flex flex-col items-center">
 
