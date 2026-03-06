@@ -101,9 +101,8 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
                   {item.albums!.map((album, index) => (
                     <motion.div
                       key={album.id}
-                      initial={{ opacity: 0, y: 50 }}
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
                       onClick={() => setActiveAlbum(album)}
                       className="relative group overflow-hidden bg-slate-100 dark:bg-slate-900 rounded-sm cursor-pointer aspect-[4/3]"
                     >
@@ -113,6 +112,8 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
                         className="w-full h-full object-cover"
                         containerClassName="w-full h-full"
                         hoverEffect={true}
+                        loading="eager"
+                        duration={0.4}
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300 flex items-end justify-center pb-6 md:pb-10">
                         <span className="text-white font-display text-2xl md:text-3xl tracking-wider drop-shadow-lg text-center px-4">
@@ -128,9 +129,8 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
                   {currentImages.map((imgSrc, index) => (
                     <motion.div
                       key={index}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 + 0.2 }}
                       className="break-inside-avoid rounded-sm overflow-hidden bg-slate-100 dark:bg-slate-900"
                     >
                       <SmoothImage
@@ -139,6 +139,8 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
                         className="w-full h-auto object-cover"
                         containerClassName="w-full h-full"
                         hoverEffect={true}
+                        loading="eager"
+                        duration={0.4}
                       />
                     </motion.div>
                   ))}

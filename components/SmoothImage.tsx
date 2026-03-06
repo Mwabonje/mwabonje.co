@@ -10,6 +10,7 @@ interface SmoothImageProps {
     decoding?: "async" | "sync" | "auto";
     onClick?: () => void;
     hoverEffect?: boolean;
+    duration?: number;
 }
 
 const SmoothImage: React.FC<SmoothImageProps> = ({
@@ -20,7 +21,8 @@ const SmoothImage: React.FC<SmoothImageProps> = ({
     loading = "lazy",
     decoding = "async",
     onClick,
-    hoverEffect = false
+    hoverEffect = false,
+    duration = 0.8
 }) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState(false);
@@ -37,7 +39,7 @@ const SmoothImage: React.FC<SmoothImageProps> = ({
             onClick={onClick}
         >
             {/* Background/Skeleton loader */}
-            <AnimatePresence>
+            <AnimatePresence shadow-sm>
                 {!isLoaded && !error && (
                     <motion.div
                         initial={{ opacity: 1 }}
@@ -59,7 +61,7 @@ const SmoothImage: React.FC<SmoothImageProps> = ({
                     decoding={decoding}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: isLoaded ? 1 : 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    transition={{ duration: duration, ease: "easeOut" }}
                     onLoad={() => setIsLoaded(true)}
                     onError={() => setError(true)}
                     className={`${className} ${hoverEffect ? 'transition-transform duration-700 hover:scale-105' : ''}`}
