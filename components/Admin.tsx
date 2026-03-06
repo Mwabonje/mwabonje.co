@@ -16,9 +16,13 @@ const Admin: React.FC = () => {
     return localStorage.getItem('adminAuth') === 'true';
   });
   const [password, setPassword] = useState('');
-  const [activeTab, setActiveTab] = useState<'gallery' | 'blog'>('gallery');
+  const [activeTab, setActiveTab] = useState<'gallery' | 'blog' | 'about'>('gallery');
 
-  const { galleryItems, updateGalleryItem, addGalleryItem, deleteGalleryItem, blogPosts, addBlogPost, updateBlogPost, deleteBlogPost } = useData();
+  const {
+    galleryItems, updateGalleryItem, addGalleryItem, deleteGalleryItem,
+    blogPosts, addBlogPost, updateBlogPost, deleteBlogPost,
+    aboutContent, updateAboutContent
+  } = useData();
 
   // Gallery State
   const [selectedGalleryId, setSelectedGalleryId] = useState<number | null>(galleryItems[0]?.id || null);
@@ -50,6 +54,15 @@ const Admin: React.FC = () => {
     author: { name: '', role: '' }
   });
   const [seoKeywordsInput, setSeoKeywordsInput] = useState('');
+
+  // About State
+  const [aboutForm, setAboutForm] = useState(aboutContent);
+
+  useEffect(() => {
+    if (aboutContent) {
+      setAboutForm(aboutContent);
+    }
+  }, [aboutContent]);
 
   // Auto-save logic
   useEffect(() => {
@@ -345,6 +358,34 @@ const Admin: React.FC = () => {
     updateGalleryItem({ ...item, src: data.url });
   };
 
+  const handleAboutImageUpload = async (file: File | null) => {
+    if (!file || !aboutForm) return;
+
+    if (file.size > 20 * 1024 * 1024) {
+      alert('File is too large. Please use images smaller than 20MB.');
+      return;
+    }
+
+    const { data, error } = await insforge.storage
+      .from('portfolio-images')
+      .uploadAuto(file);
+
+    if (data) {
+      setAboutForm({ ...aboutForm, image_url: data.url });
+    } else {
+      console.error('About image upload error:', error);
+      alert('Failed to upload profile image.');
+    }
+  };
+
+  const handleAboutSave = async () => {
+    if (aboutForm) {
+      await updateAboutContent(aboutForm);
+      alert('About section updated successfully!');
+    }
+  };
+
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -414,6 +455,13 @@ const Admin: React.FC = () => {
           >
             <BookOpen className="w-5 h-5" />
             <span className="text-xs md:text-sm">Blog</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('about')}
+            className={`flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all shrink-0 ${activeTab === 'about' ? 'bg-slate-100 dark:bg-slate-800 font-bold' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+          >
+            <User className="w-5 h-5" />
+            <span className="text-xs md:text-sm">About</span>
           </button>
         </nav>
 
@@ -665,7 +713,7 @@ const Admin: React.FC = () => {
                 </div>
               </div>
             </motion.div>
-          ) : (
+          ) : activeTab === 'blog' ? (
             <motion.div
               key="blog"
               initial={{ opacity: 0, x: 10 }}
@@ -801,7 +849,123 @@ const Admin: React.FC = () => {
                 </div>
               )}
             </motion.div>
+          ) : (
+            <motion.div
+              key="about"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="max-w-4xl mx-auto space-y-10"
+            >
+              <div className="flex justify-between items-end">
+                <div>
+                  <h2 className="text-4xl font-montserrat font-bold mb-2">About Management</h2>
+                  <p className="text-slate-500 dark:text-slate-400 font-montserrat">Manage your professional biography and story.</p>
+                </div>
+                <button
+                  onClick={handleAboutSave}
+                  className="bg-slate-900 dark:bg-white text-white dark:text-black px-8 py-4 rounded-xl font-bold text-xs uppercase shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
+
+              {aboutForm ? (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                  <div className="lg:col-span-1 space-y-8">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
+                      <h3 className="font-display text-xl">Profile Portrait</h3>
+                      <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800">
+                        <img src={aboutForm.image_url} className="w-full h-full object-cover" alt="About Portrait" />
+                      </div>
+                      <div className="space-y-4">
+                        <input
+                          value={aboutForm.image_url}
+                          onChange={e => setAboutForm({ ...aboutForm, image_url: e.target.value })}
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-3 rounded-xl text-[10px] outline-none"
+                          placeholder="Image URL"
+                        />
+                        <label className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-black rounded-xl cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-[10px] font-bold uppercase">
+                          <ImageIcon className="w-4 h-4" />
+                          Update Portrait
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleAboutImageUpload(e.target.files?.[0] || null)}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-2 space-y-8">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm space-y-8">
+                      <div className="space-y-4">
+                        <label className="text-[10px] uppercase font-bold text-slate-400">Intro Heading</label>
+                        <input
+                          value={aboutForm.intro_heading}
+                          onChange={e => setAboutForm({ ...aboutForm, intro_heading: e.target.value })}
+                          className="w-full text-xl md:text-2xl font-display bg-transparent border-none focus:ring-0 p-0 text-slate-900 dark:text-white"
+                          placeholder="Short impactful intro..."
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="text-[10px] uppercase font-bold text-slate-400">Biography - Paragraph 1</label>
+                        <textarea
+                          rows={4}
+                          value={aboutForm.bio_text_p1}
+                          onChange={e => setAboutForm({ ...aboutForm, bio_text_p1: e.target.value })}
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-sm leading-relaxed outline-none focus:ring-1 focus:ring-slate-200 dark:focus:ring-slate-700"
+                          placeholder="First paragraph..."
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <label className="text-[10px] uppercase font-bold text-slate-400">Biography - Paragraph 2</label>
+                        <textarea
+                          rows={4}
+                          value={aboutForm.bio_text_p2}
+                          onChange={e => setAboutForm({ ...aboutForm, bio_text_p2: e.target.value })}
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-sm leading-relaxed outline-none focus:ring-1 focus:ring-slate-200 dark:focus:ring-slate-700"
+                          placeholder="Second paragraph..."
+                        />
+                      </div>
+
+                      <div className="pt-8 border-t border-slate-50 dark:border-slate-800 space-y-6">
+                        <h3 className="font-display text-xl">Philosophy Statement</h3>
+                        <div className="space-y-4">
+                          <label className="text-[10px] uppercase font-bold text-slate-400">Quote</label>
+                          <textarea
+                            rows={3}
+                            value={aboutForm.philosophy_quote}
+                            onChange={e => setAboutForm({ ...aboutForm, philosophy_quote: e.target.value })}
+                            className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-sm italic leading-relaxed outline-none focus:ring-1 focus:ring-slate-200 dark:focus:ring-slate-700"
+                            placeholder="A meaningful quote..."
+                          />
+                        </div>
+                        <div className="space-y-4">
+                          <label className="text-[10px] uppercase font-bold text-slate-400">Author</label>
+                          <input
+                            value={aboutForm.philosophy_author}
+                            onChange={e => setAboutForm({ ...aboutForm, philosophy_author: e.target.value })}
+                            className="w-full bg-slate-50 dark:bg-slate-800 p-3 rounded-xl text-xs outline-none focus:ring-1 focus:ring-slate-200 dark:focus:ring-slate-700"
+                            placeholder="Quote author name..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+                  <p className="text-slate-400">Loading about content...</p>
+                </div>
+              )}
+            </motion.div>
           )}
+
         </AnimatePresence>
       </main>
     </div>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { GalleryItem, BlogPost } from '../types';
+import { GalleryItem, BlogPost, AboutContent } from '../types';
 import { insforge } from '../lib/insforge';
 
 interface DataContextType {
@@ -12,6 +12,8 @@ interface DataContextType {
   addBlogPost: (post: BlogPost) => Promise<BlogPost | undefined>;
   updateBlogPost: (post: BlogPost) => Promise<void>;
   deleteBlogPost: (id: string) => Promise<void>;
+  aboutContent: AboutContent | null;
+  updateAboutContent: (updated: AboutContent) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -19,6 +21,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [aboutContent, setAboutContent] = useState<AboutContent | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Helper to map DB blog post to TypeScript interface
@@ -38,16 +41,19 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [galleryRes, blogRes] = await Promise.all([
+      const [galleryRes, blogRes, aboutRes] = await Promise.all([
         insforge.database.from('gallery_items').select('*').order('id', { ascending: true }),
-        insforge.database.from('blog_posts').select('*').order('created_at', { ascending: false })
+        insforge.database.from('blog_posts').select('*').order('created_at', { ascending: false }),
+        insforge.database.from('about_content').select('*').eq('id', 1).single()
       ]);
 
       if (galleryRes.data) setGalleryItems(galleryRes.data);
       if (blogRes.data) setBlogPosts(blogRes.data.map(mapBlogPostFromDB));
+      if (aboutRes.data) setAboutContent(aboutRes.data);
 
       if (galleryRes.error) console.error('Gallery fetch error:', galleryRes.error);
       if (blogRes.error) console.error('Blog fetch error:', blogRes.error);
+      if (aboutRes.error) console.error('About fetch error:', aboutRes.error);
     } catch (e) {
       console.error('Failed to fetch data from InsForge:', e);
     } finally {
@@ -219,6 +225,23 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const updateAboutContent = async (updated: AboutContent) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, updated_at, ...toUpdate } = updated;
+    const { data, error } = await insforge.database
+      .from('about_content')
+      .update(toUpdate)
+      .eq('id', 1)
+      .select();
+
+    if (!error && data) {
+      setAboutContent(data[0]);
+    } else {
+      console.error('Update about error:', error);
+    }
+  };
+
+
   return (
     <DataContext.Provider value={{
       galleryItems,
@@ -229,7 +252,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       deleteGalleryItem,
       addBlogPost,
       updateBlogPost,
-      deleteBlogPost
+      deleteBlogPost,
+      aboutContent,
+      updateAboutContent
     }}>
       {children}
     </DataContext.Provider>

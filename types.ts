@@ -43,3 +43,14 @@ export interface BlogPost {
     avatar?: string;
   };
 }
+
+export interface AboutContent {
+  id: number;
+  image_url: string;
+  intro_heading: string;
+  bio_text_p1: string;
+  bio_text_p2: string;
+  philosophy_quote: string;
+  philosophy_author: string;
+  updated_at?: string;
+}
