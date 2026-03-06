@@ -58,6 +58,10 @@ const Admin: React.FC = () => {
   // About State
   const [aboutForm, setAboutForm] = useState(aboutContent);
 
+  // Upload Progress State
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+
   useEffect(() => {
     if (aboutContent) {
       setAboutForm(aboutContent);
@@ -251,11 +255,12 @@ const Admin: React.FC = () => {
     const fileArray = Array.from(files);
     const newUrls: string[] = [];
 
+    const interval = simulateProgress();
     for (const file of fileArray) {
       if (!file.type.startsWith('image/')) continue;
 
-      if (file.size > 20 * 1024 * 1024) {
-        alert(`File ${file.name} is too large. Please use images smaller than 20MB.`);
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`File ${file.name} is too large. Please use images smaller than 5MB.`);
         continue;
       }
 
@@ -272,6 +277,7 @@ const Admin: React.FC = () => {
 
       newUrls.push(data.url);
     }
+    finishProgress(interval);
 
     if (newUrls.length === 0) return;
 
@@ -296,14 +302,17 @@ const Admin: React.FC = () => {
   const handleBlogCoverUpload = async (file: File | null) => {
     if (!file || !file.type.startsWith('image/')) return;
 
-    if (file.size > 20 * 1024 * 1024) {
-      alert('File is too large. Please use images smaller than 20MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File is too large. Please use images smaller than 5MB.');
       return;
     }
 
+    const interval = simulateProgress();
     const { data, error } = await insforge.storage
       .from('portfolio-images')
       .uploadAuto(file);
+
+    finishProgress(interval);
 
     if (error || !data) {
       console.error('Blog cover upload error:', error);
@@ -317,14 +326,17 @@ const Admin: React.FC = () => {
   const handleAlbumCoverUpload = async (file: File | null) => {
     if (!file || !file.type.startsWith('image/')) return;
 
-    if (file.size > 20 * 1024 * 1024) {
-      alert('File is too large. Please use images smaller than 20MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File is too large. Please use images smaller than 5MB.');
       return;
     }
 
+    const interval = simulateProgress();
     const { data, error } = await insforge.storage
       .from('portfolio-images')
       .uploadAuto(file);
+
+    finishProgress(interval);
 
     if (error || !data) {
       console.error('Album cover upload error:', error);
@@ -338,14 +350,17 @@ const Admin: React.FC = () => {
   const handleCategoryCoverUpload = async (file: File | null) => {
     if (!file || !file.type.startsWith('image/') || !selectedGalleryId) return;
 
-    if (file.size > 20 * 1024 * 1024) {
-      alert('File is too large. Please use images smaller than 20MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File is too large. Please use images smaller than 5MB.');
       return;
     }
 
+    const interval = simulateProgress();
     const { data, error } = await insforge.storage
       .from('portfolio-images')
       .uploadAuto(file);
+
+    finishProgress(interval);
 
     if (error || !data) {
       console.error('Category cover upload error:', error);
@@ -361,14 +376,17 @@ const Admin: React.FC = () => {
   const handleAboutImageUpload = async (file: File | null) => {
     if (!file || !aboutForm) return;
 
-    if (file.size > 20 * 1024 * 1024) {
-      alert('File is too large. Please use images smaller than 20MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File is too large. Please use images smaller than 5MB.');
       return;
     }
 
+    const interval = simulateProgress();
     const { data, error } = await insforge.storage
       .from('portfolio-images')
       .uploadAuto(file);
+
+    finishProgress(interval);
 
     if (data) {
       setAboutForm({ ...aboutForm, image_url: data.url });
@@ -383,6 +401,30 @@ const Admin: React.FC = () => {
       await updateAboutContent(aboutForm);
       alert('About section updated successfully!');
     }
+  };
+
+  const simulateProgress = () => {
+    setIsUploading(true);
+    setUploadProgress(10);
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(interval);
+          return 90;
+        }
+        return prev + 5;
+      });
+    }, 200);
+    return interval;
+  };
+
+  const finishProgress = (interval: NodeJS.Timeout) => {
+    clearInterval(interval);
+    setUploadProgress(100);
+    setTimeout(() => {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }, 500);
   };
 
 
@@ -488,7 +530,25 @@ const Admin: React.FC = () => {
         </button>
       </aside>
 
-      <main className="flex-grow p-6 md:p-10 overflow-auto">
+      <main className="flex-grow p-6 md:p-10 overflow-auto relative">
+        <AnimatePresence>
+          {isUploading && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="fixed top-0 left-0 md:left-64 right-0 z-50 h-1.5 bg-slate-100 dark:bg-slate-800"
+            >
+              <motion.div
+                className="h-full bg-slate-900 dark:bg-white"
+                initial={{ width: '0%' }}
+                animate={{ width: `${uploadProgress}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <AnimatePresence mode="wait">
           {activeTab === 'gallery' ? (
             <motion.div

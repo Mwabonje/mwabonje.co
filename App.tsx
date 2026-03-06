@@ -32,7 +32,7 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark">
       <Header />
-      <main className="flex-grow pt-0 md:pt-0">
+      <main className="flex-grow pt-8 md:pt-16">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<About />} />
