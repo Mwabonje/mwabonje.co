@@ -9,6 +9,7 @@ import Blog from './components/Blog';
 import BlogPost from './components/BlogPost';
 import About from './components/About';
 import { DataProvider, useData } from './context/DataContext';
+import { useSmoothScroll } from './hooks/useSmoothScroll';
 
 const HomePage: React.FC = () => (
   <>
@@ -19,6 +20,7 @@ const HomePage: React.FC = () => (
 const AppContent: React.FC = () => {
   const { loading } = useData();
   const location = useLocation();
+  useSmoothScroll();
 
   if (loading) {
     return (

@@ -92,7 +92,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-8">
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 modal-scroll">
             <div className="container mx-auto">
 
               {showAlbums ? (
