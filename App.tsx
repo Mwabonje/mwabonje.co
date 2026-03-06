@@ -6,11 +6,13 @@ import Footer from './components/Footer';
 import Admin from './components/Admin';
 import Blog from './components/Blog';
 import BlogPost from './components/BlogPost';
+import About from './components/About';
 import { DataProvider, useData } from './context/DataContext';
 
 const HomePage: React.FC = () => (
   <>
     <Gallery />
+    <About />
   </>
 );
 
