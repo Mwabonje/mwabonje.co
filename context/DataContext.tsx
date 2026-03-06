@@ -105,19 +105,21 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (itemToDelete) {
       const urlsToDelete: string[] = [];
 
-      // Collect all image URLs
+      // Collect all image URLs with defensive checks
       if (itemToDelete.src) urlsToDelete.push(itemToDelete.src);
-      if (itemToDelete.images) urlsToDelete.push(...itemToDelete.images);
+      if (Array.isArray(itemToDelete.images)) urlsToDelete.push(...itemToDelete.images);
 
-      itemToDelete.albums?.forEach(album => {
-        if (album.cover) urlsToDelete.push(album.cover);
-        if (album.images) urlsToDelete.push(...album.images);
-      });
+      if (Array.isArray(itemToDelete.albums)) {
+        itemToDelete.albums.forEach(album => {
+          if (album.cover) urlsToDelete.push(album.cover);
+          if (Array.isArray(album.images)) urlsToDelete.push(...album.images);
+        });
+      }
 
       // Filter to only include InsForge storage URLs and extract the filename/path
       const storagePrefix = '/storage/buckets/portfolio-images/objects/';
       const filesToRemove = urlsToDelete
-        .filter(url => url.includes(storagePrefix))
+        .filter(url => url && typeof url === 'string' && url.includes(storagePrefix))
         .map(url => {
           const parts = url.split(storagePrefix);
           return parts[parts.length - 1]; // Get the filename part
@@ -127,15 +129,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (filesToRemove.length > 0) {
         console.log('Cleaning up storage files:', filesToRemove);
-        for (const file of filesToRemove) {
-          try {
-            await insforge.storage
+        // Delete in parallel to avoid blocking
+        await Promise.allSettled(
+          filesToRemove.map(file =>
+            insforge.storage
               .from('portfolio-images')
-              .remove(file);
-          } catch (storageError) {
-            console.warn(`Failed to remove file ${file} from storage:`, storageError);
-          }
-        }
+              .remove(file)
+              .catch(err => console.warn(`Failed to remove ${file}:`, err))
+          )
+        );
       }
     }
 

@@ -167,15 +167,18 @@ const Admin: React.FC = () => {
 
   const handleDeleteCategory = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Attempting to delete category:', id);
     if (confirm('Delete category and all its contents?')) {
       try {
         await deleteGalleryItem(id);
+        console.log('Category deleted successfully from state');
         if (selectedGalleryId === id) {
           setSelectedGalleryId(galleryItems.find(i => i.id !== id)?.id || null);
           setSelectedAlbumId(null);
         }
-      } catch (error) {
-        alert('Failed to delete category. Please try again.');
+      } catch (error: any) {
+        console.error('Category deletion failed:', error);
+        alert(`Failed to delete category: ${error.message || 'Unknown error'}`);
       }
     }
   };
@@ -257,14 +260,21 @@ const Admin: React.FC = () => {
   };
 
   const handleFileUpload = async (files: FileList | null) => {
-    if (!files || !selectedGalleryId) return;
+    console.log('handleFileUpload triggered with files:', files?.length);
+    if (!files || !selectedGalleryId) {
+      if (!selectedGalleryId) alert('Please select a category first.');
+      return;
+    }
 
     const fileArray = Array.from(files);
+    console.log('Processing files:', fileArray.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(2)}MB)`));
 
     // Pre-filter oversized files
     const validFiles = fileArray.filter(file => {
       if (file.size > MAX_FILE_SIZE) {
-        alert(`File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum allowed size is 5MB.`);
+        const msg = `File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum allowed size is 5MB.`;
+        console.warn(msg);
+        alert(msg);
         return false;
       }
       return file.type.startsWith('image/');
