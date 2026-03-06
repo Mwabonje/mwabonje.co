@@ -37,9 +37,9 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="w-full bg-background-light dark:bg-background-dark transition-colors duration-300 pt-4 md:pt-12 relative">
+      <header className="w-full bg-background-light dark:bg-background-dark transition-colors duration-300 pt-4 md:pt-4 relative">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="relative flex items-center justify-center mb-4 md:mb-10">
+          <div className="relative flex items-center justify-center mb-4 md:mb-2">
             {/* Logo Section */}
             <Link to="/" className="group relative z-10 block">
               <h1 className="font-hand text-3xl xs:text-4xl sm:text-5xl md:text-7xl text-primary dark:text-white transition-opacity text-center leading-tight">
@@ -74,7 +74,7 @@ const Header: React.FC = () => {
       </header>
 
       {/* Sticky Navigation Bar */}
-      <nav className="sticky top-0 z-50 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-100/50 dark:border-slate-800/50 py-4 md:py-6 transition-all duration-300">
+      <nav className="sticky top-0 z-50 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-100/50 dark:border-slate-800/50 py-4 md:py-2 transition-all duration-300">
         <div className="container mx-auto px-4 md:px-6">
           {/* Desktop Links */}
           <div className="hidden md:flex flex-wrap justify-center gap-x-6 lg:gap-x-8 gap-y-4">
