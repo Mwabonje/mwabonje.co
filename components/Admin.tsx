@@ -236,6 +236,7 @@ const Admin: React.FC = () => {
     if (!files || !selectedGalleryId) return;
 
     const fileArray = Array.from(files);
+    const newUrls: string[] = [];
 
     for (const file of fileArray) {
       if (!file.type.startsWith('image/')) continue;
@@ -256,25 +257,27 @@ const Admin: React.FC = () => {
         continue;
       }
 
-      const url = data.url;
-
-      // Always find the LATEST item from galleryItems to avoid state drift
-      const currentItems = [...galleryItems];
-      const itemIndex = currentItems.findIndex(i => i.id === selectedGalleryId);
-      if (itemIndex === -1) continue;
-
-      const item = { ...currentItems[itemIndex] };
-
-      if (selectedAlbumId) {
-        item.albums = item.albums?.map(a =>
-          a.id.toString() === selectedAlbumId.toString() ? { ...a, images: [...(a.images || []), url] } : a
-        );
-      } else {
-        item.images = [...(item.images || []), url];
-      }
-
-      updateGalleryItem(item);
+      newUrls.push(data.url);
     }
+
+    if (newUrls.length === 0) return;
+
+    // Always find the LATEST item from galleryItems to avoid state drift
+    const currentItems = [...galleryItems];
+    const itemIndex = currentItems.findIndex(i => i.id === selectedGalleryId);
+    if (itemIndex === -1) return;
+
+    const item = { ...currentItems[itemIndex] };
+
+    if (selectedAlbumId) {
+      item.albums = item.albums?.map(a =>
+        a.id.toString() === selectedAlbumId.toString() ? { ...a, images: [...(a.images || []), ...newUrls] } : a
+      );
+    } else {
+      item.images = [...(item.images || []), ...newUrls];
+    }
+
+    updateGalleryItem(item);
   };
 
   const handleBlogCoverUpload = async (file: File | null) => {
