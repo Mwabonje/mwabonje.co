@@ -122,21 +122,32 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         .filter(url => url && typeof url === 'string' && url.includes(storagePrefix))
         .map(url => {
           const parts = url.split(storagePrefix);
-          return parts[parts.length - 1]; // Get the filename part
+          let filename = parts[parts.length - 1];
+          // Strip query parameters if present
+          if (filename.includes('?')) {
+            filename = filename.split('?')[0];
+          }
+          return filename;
         })
         // Remove duplicates and empty strings
         .filter((val, index, self) => val && self.indexOf(val) === index);
 
       if (filesToRemove.length > 0) {
         console.log('Cleaning up storage files:', filesToRemove);
-        // Delete in parallel to avoid blocking
+        // Delete in parallel
         await Promise.allSettled(
-          filesToRemove.map(file =>
-            insforge.storage
-              .from('portfolio-images')
-              .remove(file)
-              .catch(err => console.warn(`Failed to remove ${file}:`, err))
-          )
+          filesToRemove.map(async (file) => {
+            try {
+              const { error } = await insforge.storage.from('portfolio-images').remove(file);
+              if (error) {
+                console.warn(`Storage removal notice for ${file}:`, error);
+              } else {
+                console.log(`Successfully removed ${file} from storage`);
+              }
+            } catch (err) {
+              console.warn(`Exception while removing ${file}:`, err);
+            }
+          })
         );
       }
     }
@@ -203,20 +214,28 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const storagePrefix = '/storage/buckets/portfolio-images/objects/';
       const filesToRemove = urlsToDelete
-        .filter(url => url.includes(storagePrefix))
+        .filter(url => url && url.includes(storagePrefix))
         .map(url => {
           const parts = url.split(storagePrefix);
-          return parts[parts.length - 1];
+          let filename = parts[parts.length - 1];
+          if (filename.includes('?')) {
+            filename = filename.split('?')[0];
+          }
+          return filename;
         })
         .filter((val, index, self) => val && self.indexOf(val) === index);
 
       if (filesToRemove.length > 0) {
         console.log('Cleaning up blog storage files:', filesToRemove);
-        for (const file of filesToRemove) {
-          await insforge.storage
-            .from('portfolio-images')
-            .remove(file);
-        }
+        await Promise.allSettled(
+          filesToRemove.map(async (file) => {
+            try {
+              await insforge.storage.from('portfolio-images').remove(file);
+            } catch (e) {
+              console.warn(`Failed to remove blog file ${file}:`, e);
+            }
+          })
+        );
       }
     }
 
@@ -249,6 +268,71 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const cleanupOrphanedStorage = async () => {
+    console.log('Starting storage cleanup...');
+    const storagePrefix = '/storage/buckets/portfolio-images/objects/';
+    
+    const referencedUrls: string[] = [];
+    galleryItems.forEach(item => {
+      if (item.src) referencedUrls.push(item.src);
+      if (item.images) referencedUrls.push(...item.images);
+      if (item.albums) {
+        item.albums.forEach(a => {
+          if (a.cover) referencedUrls.push(a.cover);
+          if (a.images) referencedUrls.push(...a.images);
+        });
+      }
+    });
+    blogPosts.forEach(post => {
+      if (post.coverImage) referencedUrls.push(post.coverImage);
+      if (post.author?.avatar) referencedUrls.push(post.author.avatar);
+    });
+    if (aboutContent?.image_url) referencedUrls.push(aboutContent.image_url);
+    
+    const referencedFiles = referencedUrls
+      .filter(url => url && url.includes(storagePrefix))
+      .map(url => {
+        const parts = url.split(storagePrefix);
+        let filename = parts[parts.length - 1];
+        if (filename.includes('?')) filename = filename.split('?')[0];
+        return filename;
+      });
+      
+    const referencedSet = new Set(referencedFiles);
+    const { data: listData, error } = await insforge.storage.from('portfolio-images').list();
+    
+    if (error || !listData) {
+      console.error('Failed to list storage files:', error);
+      return { success: false, message: 'Could not fetch storage list' };
+    }
+    
+    // SDK returns { pagination, objects: [...] }
+    const objects = (listData as any).objects || [];
+    const orphanedFiles = objects
+      .map((f: any) => {
+        // Filename is usually in name or key
+        const name = f.name || f.key?.split('/').pop();
+        return name;
+      })
+      .filter((name: string) => name && !referencedSet.has(name));
+      
+    if (orphanedFiles.length === 0) {
+      return { success: true, message: 'Storage is already clean' };
+    }
+    
+    console.log(`Found ${orphanedFiles.length} orphaned files. Deleting...`);
+    
+    const results = await Promise.allSettled(
+      orphanedFiles.map(file => insforge.storage.from('portfolio-images').remove(file))
+    );
+    
+    const failedCount = results.filter(r => r.status === 'rejected').length;
+    
+    return { 
+      success: true, 
+      message: `Cleaned up ${orphanedFiles.length - failedCount} files. ${failedCount} failed.` 
+    };
+  };
 
   return (
     <DataContext.Provider value={{
@@ -262,7 +346,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updateBlogPost,
       deleteBlogPost,
       aboutContent,
-      updateAboutContent
+      updateAboutContent,
+      cleanupOrphanedStorage
     }}>
       {children}
     </DataContext.Provider>

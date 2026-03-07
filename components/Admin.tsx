@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { GalleryItem, BlogPost, Album } from '../types';
 import {
-  Plus, Trash2, Edit, Save, ArrowLeft,
+  Plus, Trash2, RefreshCw, Edit, Save, ArrowLeft,
   Image as ImageIcon, LayoutDashboard,
   BookOpen, LogOut, ChevronRight, Search,
   Settings, User, Globe, Tag, Eye
@@ -25,8 +25,10 @@ const Admin: React.FC = () => {
   const {
     galleryItems, updateGalleryItem, addGalleryItem, deleteGalleryItem,
     blogPosts, addBlogPost, updateBlogPost, deleteBlogPost,
-    aboutContent, updateAboutContent
+    aboutContent, updateAboutContent, cleanupOrphanedStorage
   } = useData();
+
+  const [isCleaning, setIsCleaning] = useState(false);
 
   // Gallery State
   const [selectedGalleryId, setSelectedGalleryId] = useState<number | null>(galleryItems[0]?.id || null);
@@ -462,6 +464,21 @@ const Admin: React.FC = () => {
     }
   };
 
+  const handleCleanupStorage = async () => {
+    if (!confirm('This will permanently delete any images in storage that are not linked to any category or blog post. Proceed?')) return;
+    
+    setIsCleaning(true);
+    try {
+      const result = await cleanupOrphanedStorage();
+      alert(result.message);
+    } catch (err) {
+      console.error('Cleanup failed:', err);
+      alert('Failed to complete cleanup.');
+    } finally {
+      setIsCleaning(false);
+    }
+  };
+
   const simulateProgress = () => {
     setIsUploading(true);
     setUploadProgress(10);
@@ -617,9 +634,19 @@ const Admin: React.FC = () => {
               exit={{ opacity: 0, x: -10 }}
               className="max-w-6xl mx-auto space-y-10"
             >
-              <div>
-                <h2 className="text-4xl font-montserrat font-bold mb-2">Gallery Management</h2>
-                <p className="text-slate-500 dark:text-slate-400 font-montserrat">Curate and organize your visual narrative.</p>
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                  <h2 className="text-4xl font-montserrat font-bold mb-2">Gallery Management</h2>
+                  <p className="text-slate-500 dark:text-slate-400 font-montserrat">Curate and organize your visual narrative.</p>
+                </div>
+                <button
+                  onClick={handleCleanupStorage}
+                  disabled={isCleaning}
+                  className="flex items-center gap-2 px-5 py-3 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 rounded-2xl text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all border border-amber-100 dark:border-amber-900/50 shadow-sm disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isCleaning ? 'animate-spin' : ''}`} />
+                  {isCleaning ? 'Cleaning storage...' : 'Cleanup Storage'}
+                </button>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
