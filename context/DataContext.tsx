@@ -301,18 +301,24 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const referencedSet = new Set(referencedFiles);
     const { data: listData, error } = await insforge.storage.from('portfolio-images').list();
     
-    if (error || !listData) {
+    if (error) {
       console.error('Failed to list storage files:', error);
-      return { success: false, message: 'Could not fetch storage list' };
+      return { success: false, message: `Storage error: ${error.message || JSON.stringify(error)}` };
     }
     
-    // SDK returns { pagination, objects: [...] }
-    const objects = (listData as any).objects || [];
+    if (!listData) {
+      return { success: false, message: 'Could not fetch storage list (no data returned)' };
+    }
+    
+    console.log('Raw storage list response:', listData);
+    
+    // SDK returns { objects: [...] } or just [...]
+    const objects = Array.isArray(listData) ? listData : (listData as any)?.objects || [];
+    
     const orphanedFiles = objects
       .map((f: any) => {
         // Filename is usually in name or key
-        const name = f.name || f.key?.split('/').pop();
-        return name;
+        return f.name || f.key?.split('/').pop() || f.Key?.split('/').pop();
       })
       .filter((name: string) => name && !referencedSet.has(name));
       
