@@ -91,13 +91,13 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
             </button>
           </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-8 modal-scroll">
-            <div className="container mx-auto">
+          {/* Scrollable Content - data-lenis-prevent stops Lenis hijacking scroll inside modal */}
+          <div className="flex-1 overflow-y-auto p-4 md:p-8" data-lenis-prevent>
+            <div className="w-full">
 
               {showAlbums ? (
                 /* Albums Grid */
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
                   {item.albums!.map((album, index) => (
                     <motion.div
                       key={album.id}
@@ -125,7 +125,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ item, onClose }) => {
                 </div>
               ) : (
                 /* Images Grid (Masonry) */
-                <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6 pb-20">
+                <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4 pb-20">
                   {currentImages.map((imgSrc, index) => (
                     <motion.div
                       key={index}

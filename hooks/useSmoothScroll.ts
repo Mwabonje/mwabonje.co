@@ -12,6 +12,8 @@ export const useSmoothScroll = () => {
             wheelMultiplier: 1,
             touchMultiplier: 2,
             infinite: false,
+            // Allow native scroll on elements marked with data-lenis-prevent
+            prevent: (node: Element) => node.hasAttribute('data-lenis-prevent'),
         });
 
         function raf(time: number) {
