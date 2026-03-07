@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { insforge } from '../lib/insforge';
+import { compressImage } from '../lib/imageUtils';
 
 
 const ADMIN_PASSWORD = 'admin123';
@@ -286,18 +287,26 @@ const Admin: React.FC = () => {
     const interval = simulateProgress();
 
     for (const file of validFiles) {
-      // Upload to InsForge Storage
-      const { data, error } = await insforge.storage
-        .from('portfolio-images')
-        .uploadAuto(file);
+      try {
+        // Automatically compress if > 500kb
+        const processedFile = await compressImage(file, 500);
+        
+        // Upload to InsForge Storage
+        const { data, error } = await insforge.storage
+          .from('portfolio-images')
+          .uploadAuto(processedFile);
 
-      if (error || !data) {
-        console.error('Image upload error:', error);
-        alert(`Failed to upload ${file.name}. Please try again.`);
-        continue;
+        if (error || !data) {
+          console.error('Image upload error:', error);
+          alert(`Failed to upload ${file.name}. Please try again.`);
+          continue;
+        }
+
+        newUrls.push(data.url);
+      } catch (err) {
+        console.error('Compression/Upload error:', err);
+        alert(`Error processing ${file.name}`);
       }
-
-      newUrls.push(data.url);
     }
     finishProgress(interval);
 
@@ -330,19 +339,26 @@ const Admin: React.FC = () => {
     }
 
     const interval = simulateProgress();
-    const { data, error } = await insforge.storage
-      .from('portfolio-images')
-      .uploadAuto(file);
+    try {
+      const processedFile = await compressImage(file, 500);
+      const { data, error } = await insforge.storage
+        .from('portfolio-images')
+        .uploadAuto(processedFile);
 
-    finishProgress(interval);
+      finishProgress(interval);
 
-    if (error || !data) {
-      console.error('Blog cover upload error:', error);
-      alert('Failed to upload cover image. Please try again.');
-      return;
+      if (error || !data) {
+        console.error('Blog cover upload error:', error);
+        alert('Failed to upload cover image. Please try again.');
+        return;
+      }
+
+      setCurrentBlog({ ...currentBlog, coverImage: data.url });
+    } catch (err) {
+      finishProgress(interval);
+      console.error('Compression/Upload error:', err);
+      alert('Error processing image');
     }
-
-    setCurrentBlog({ ...currentBlog, coverImage: data.url });
   };
 
   const handleAlbumCoverUpload = async (file: File | null) => {
@@ -354,19 +370,26 @@ const Admin: React.FC = () => {
     }
 
     const interval = simulateProgress();
-    const { data, error } = await insforge.storage
-      .from('portfolio-images')
-      .uploadAuto(file);
+    try {
+      const processedFile = await compressImage(file, 500);
+      const { data, error } = await insforge.storage
+        .from('portfolio-images')
+        .uploadAuto(processedFile);
 
-    finishProgress(interval);
+      finishProgress(interval);
 
-    if (error || !data) {
-      console.error('Album cover upload error:', error);
-      alert('Failed to upload album cover. Please try again.');
-      return;
+      if (error || !data) {
+        console.error('Album cover upload error:', error);
+        alert('Failed to upload album cover. Please try again.');
+        return;
+      }
+
+      setNewAlbumCover(data.url);
+    } catch (err) {
+      finishProgress(interval);
+      console.error('Compression/Upload error:', err);
+      alert('Error processing image');
     }
-
-    setNewAlbumCover(data.url);
   };
 
   const handleCategoryCoverUpload = async (file: File | null) => {
@@ -378,21 +401,28 @@ const Admin: React.FC = () => {
     }
 
     const interval = simulateProgress();
-    const { data, error } = await insforge.storage
-      .from('portfolio-images')
-      .uploadAuto(file);
+    try {
+      const processedFile = await compressImage(file, 500);
+      const { data, error } = await insforge.storage
+        .from('portfolio-images')
+        .uploadAuto(processedFile);
 
-    finishProgress(interval);
+      finishProgress(interval);
 
-    if (error || !data) {
-      console.error('Category cover upload error:', error);
-      alert('Failed to upload cover image. Please try again.');
-      return;
+      if (error || !data) {
+        console.error('Category cover upload error:', error);
+        alert('Failed to upload cover image. Please try again.');
+        return;
+      }
+
+      const item = galleryItems.find(i => i.id === selectedGalleryId);
+      if (!item) return;
+      updateGalleryItem({ ...item, src: data.url });
+    } catch (err) {
+      finishProgress(interval);
+      console.error('Compression/Upload error:', err);
+      alert('Error processing image');
     }
-
-    const item = galleryItems.find(i => i.id === selectedGalleryId);
-    if (!item) return;
-    updateGalleryItem({ ...item, src: data.url });
   };
 
   const handleAboutImageUpload = async (file: File | null) => {
@@ -404,17 +434,24 @@ const Admin: React.FC = () => {
     }
 
     const interval = simulateProgress();
-    const { data, error } = await insforge.storage
-      .from('portfolio-images')
-      .uploadAuto(file);
+    try {
+      const processedFile = await compressImage(file, 500);
+      const { data, error } = await insforge.storage
+        .from('portfolio-images')
+        .uploadAuto(processedFile);
 
-    finishProgress(interval);
+      finishProgress(interval);
 
-    if (data) {
-      setAboutForm({ ...aboutForm, image_url: data.url });
-    } else {
-      console.error('About image upload error:', error);
-      alert('Failed to upload profile image.');
+      if (data) {
+        setAboutForm({ ...aboutForm, image_url: data.url });
+      } else {
+        console.error('About image upload error:', error);
+        alert('Failed to upload profile image.');
+      }
+    } catch (err) {
+      finishProgress(interval);
+      console.error('Compression/Upload error:', err);
+      alert('Error processing image');
     }
   };
 
