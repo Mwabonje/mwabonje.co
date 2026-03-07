@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { GalleryItem, BlogPost, AboutContent } from '../types';
-import { insforge } from '../lib/insforge';
+import { insforge, insforgeAdmin } from '../lib/insforge';
 
 interface DataContextType {
   galleryItems: GalleryItem[];
@@ -300,71 +300,70 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           return decodeURIComponent(filename);
         })
     );
+    console.log('Files referenced in DB:', [...referencedSet]);
 
-    console.log('Referenced files in database:', [...referencedSet]);
+    // 2. List all files using the admin client (needs API key with elevated permissions)
+    const { data: listData, error: listError } = await insforgeAdmin.storage
+      .from('portfolio-images')
+      .list();
 
-    // 2. Use direct REST API call to reliably list storage objects
-    const PRODUCTION_URL = 'https://9se6drpg.us-east.insforge.app';
-    const API_KEY = import.meta.env.VITE_INSFORGE_API_KEY;
-    const baseUrl = import.meta.env.VITE_INSFORGE_API_BASE_URL || PRODUCTION_URL;
+    console.log('Storage list raw response:', JSON.stringify(listData));
+    console.log('Storage list error:', listError);
 
-    let allFileNames: string[] = [];
+    if (listError) {
+      return { success: false, message: `Storage error: ${listError.message || JSON.stringify(listError)}` };
+    }
 
-    try {
-      const res = await fetch(`${baseUrl}/storage/buckets/portfolio-images/objects`, {
-        headers: {
-          'Authorization': `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-      });
+    if (!listData) {
+      return { success: false, message: 'Storage returned no data' };
+    }
 
-      console.log('Storage list status:', res.status);
-      const rawData = await res.json();
-      console.log('Raw storage list response:', rawData);
+    // Parse regardless of response shape
+    const objectsRaw: any[] =
+      Array.isArray(listData) ? listData
+      : (listData as any)?.objects ?? (listData as any)?.data ?? (listData as any)?.items ?? [];
 
-      if (!res.ok) {
-        return { success: false, message: `Storage error: ${rawData?.message || res.statusText}` };
-      }
+    console.log('Parsed objects array:', objectsRaw);
 
-      // Handle various response shapes
-      const objects = Array.isArray(rawData)
-        ? rawData
-        : rawData?.objects || rawData?.data || rawData?.items || [];
+    // Extract filenames
+    const allFileNames: string[] = objectsRaw
+      .map((f: any) => {
+        const raw = f.name || f.key || f.Key || f.fileName || f.filename || '';
+        return decodeURIComponent(raw.split('/').pop() || raw);
+      })
+      .filter(Boolean);
 
-      allFileNames = objects.map((f: any) => {
-        const raw = f.name || f.key || f.Key || f.fileName || '';
-        // Strip any path prefix and decode
-        const filename = decodeURIComponent(raw.split('/').pop() || raw);
-        return filename;
-      }).filter(Boolean);
+    console.log('All filenames in storage:', allFileNames);
 
-      console.log('All files in storage:', allFileNames);
-    } catch (err) {
-      console.error('Fetch error listing storage:', err);
-      return { success: false, message: `Network error listing files: ${err}` };
+    if (allFileNames.length === 0) {
+      return {
+        success: false,
+        message: `Listing returned 0 files. Please check browser console for the raw SDK response and share it.`
+      };
     }
 
     // 3. Find orphaned files
     const orphanedFiles = allFileNames.filter(name => !referencedSet.has(name));
-    console.log('Orphaned files to delete:', orphanedFiles);
+    console.log('Orphaned files:', orphanedFiles);
 
     if (orphanedFiles.length === 0) {
       return {
         success: true,
-        message: `Storage is clean! (${allFileNames.length} total files, all referenced)`
+        message: `Storage is clean! (${allFileNames.length} files, all in use)`
       };
     }
 
-    // 4. Delete the orphaned files
+    // 4. Delete orphaned files one by one
     let deletedCount = 0;
     let failedCount = 0;
     for (const file of orphanedFiles) {
       try {
-        const { error } = await insforge.storage.from('portfolio-images').remove(file);
+        const { error } = await insforgeAdmin.storage.from('portfolio-images').remove(file);
         if (error) {
-          console.warn(`Failed to delete ${file}:`, error);
+          console.warn(`Delete failed for ${file}:`, error);
           failedCount++;
         } else {
+          console.log(`Deleted: ${file}`);
           deletedCount++;
         }
       } catch (e) {
@@ -375,7 +374,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     return {
       success: true,
-      message: `Cleaned up ${deletedCount} orphaned file(s). ${failedCount > 0 ? `${failedCount} failed.` : ''}`
+      message: `Cleaned up ${deletedCount} orphaned file(s).${failedCount > 0 ? ` ${failedCount} failed.` : ' All done! ✅'}`
     };
   };
 
