@@ -57,49 +57,85 @@ const Header: React.FC = () => {
           </button>
         </div>
 
-        {/* Mobile slide-down menu */}
+        {/* Mobile slide-in LEFT DRAWER */}
         <AnimatePresence>
           {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden border-t border-slate-100 dark:border-slate-800"
-            >
-              <div className="flex flex-col items-center gap-5 py-8">
-                {dynamicNavLinks.map(link =>
-                  link.external ? (
-                    <a
-                      key={link.label}
-                      href={link.href}
-                      onClick={() => setIsMenuOpen(false)}
-                      className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300 font-medium"
-                    >
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link
-                      key={link.label}
-                      to={link.href}
-                      onClick={() => handleNavClick(link.href)}
-                      className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300 font-medium"
-                    >
-                      {link.label}
-                    </Link>
-                  )
-                )}
-                {/* Theme toggle inside mobile menu */}
+            <>
+              {/* Dark overlay behind drawer */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-sm"
+                onClick={() => setIsMenuOpen(false)}
+              />
+
+              {/* Drawer panel */}
+              <motion.div
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'tween', duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                className="fixed top-0 left-0 h-full w-[80vw] max-w-xs z-[100] bg-[#b5b5b0] dark:bg-[#2a2a2a] flex flex-col pt-14 pb-10 px-8 shadow-2xl"
+              >
+                {/* Close button top-right of drawer */}
                 <button
-                  onClick={toggleTheme}
-                  className="mt-2 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  aria-label="Toggle Dark Mode"
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-label="Close menu"
+                  className="absolute top-4 right-5 text-slate-900 dark:text-white text-2xl font-light"
                 >
-                  {theme === 'light'
-                    ? <Moon className="h-5 w-5 text-slate-700" strokeWidth={1.8} />
-                    : <Sun className="h-5 w-5 text-yellow-400" strokeWidth={1.8} />}
+                  ×
                 </button>
-              </div>
-            </motion.div>
+
+                {/* Nav links */}
+                <nav className="flex flex-col gap-7 mt-4">
+                  {dynamicNavLinks.map((link, i) =>
+                    link.external ? (
+                      <motion.a
+                        key={link.label}
+                        href={link.href}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 + i * 0.06 }}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="text-2xl font-display font-semibold uppercase tracking-widest text-slate-900 dark:text-white hover:opacity-60 transition-opacity"
+                      >
+                        {link.label}
+                      </motion.a>
+                    ) : (
+                      <motion.div
+                        key={link.label}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 + i * 0.06 }}
+                      >
+                        <Link
+                          to={link.href}
+                          onClick={() => handleNavClick(link.href)}
+                          className="text-2xl font-display font-semibold uppercase tracking-widest text-slate-900 dark:text-white hover:opacity-60 transition-opacity"
+                        >
+                          {link.label}
+                        </Link>
+                      </motion.div>
+                    )
+                  )}
+                </nav>
+
+                {/* Theme toggle at the bottom */}
+                <div className="mt-auto">
+                  <button
+                    onClick={toggleTheme}
+                    className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                    aria-label="Toggle Dark Mode"
+                  >
+                    {theme === 'light'
+                      ? <Moon className="h-5 w-5 text-slate-800" strokeWidth={1.8} />
+                      : <Sun className="h-5 w-5 text-yellow-400" strokeWidth={1.8} />}
+                  </button>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </header>
