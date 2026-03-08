@@ -78,7 +78,7 @@ const Header: React.FC = () => {
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
               className="fixed top-0 left-0 h-full w-4/5 max-w-xs z-[210] flex flex-col pt-16 pb-10 px-8 shadow-2xl"
-              style={{ backgroundColor: theme === 'dark' ? '#1e1e1e' : '#b8b8b3' }}
+              style={{ backgroundColor: theme === 'dark' ? '#1e1e1e' : '#ffffff' }}
             >
               {/* × Close button */}
               <button
