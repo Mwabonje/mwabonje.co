@@ -11,7 +11,7 @@ const Gallery: React.FC = () => {
 
   if (!galleryItems || galleryItems.length === 0) {
     return (
-      <section id="work" className="container mx-auto px-6 mb-20 text-center text-slate-500">
+      <section id="work" className="w-full md:container md:mx-auto md:px-6 mb-20 text-center text-slate-500">
         <p>No gallery items found.</p>
       </section>
     );
@@ -19,8 +19,8 @@ const Gallery: React.FC = () => {
 
   return (
     <>
-      <section id="work" className="container mx-auto px-6 mb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section id="work" className="w-full md:container md:mx-auto md:px-6 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px md:gap-6">
           {galleryItems.map((item, index) => (
             <motion.div
               key={item.id}
